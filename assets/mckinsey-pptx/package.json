@@ -1,0 +1,14 @@
+{
+  "name": "alanppt-mckinsey-pptx",
+  "version": "1.0.0",
+  "description": "Alan PPT skill · C path · McKinsey-style editable pptx generator. Copy this folder to your project and run `npm install && node make-deck.js`.",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "node make-deck.js"
+  },
+  "dependencies": {
+    "pptxgenjs": "^3.12.0",
+    "sharp": "^0.33.0"
+  }
+}

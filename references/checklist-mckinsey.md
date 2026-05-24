@@ -1,0 +1,119 @@
+# C 路径 · 麦肯锡 pptx 自检清单
+
+> 用法：每生成完一份 .pptx，**先在 PowerPoint / Keynote 里打开**逐项核对，不要只看脚本输出。
+> 网页风 A/B 用 `checklist.md`；本清单只服务于 C 路径。
+
+---
+
+## P0 · 致命问题（不通过不算交付）
+
+### P0-1 · 文字必须可编辑
+- [ ] 在 PowerPoint 里点击大标题、副标、KPI 数字、说明文字——每一项都能进入编辑状态
+- [ ] 如果点了之后只能选中"图片"，说明你把文字写进 SVG 了，回 `make-deck.js` 用 `addText` 重写
+
+### P0-2 · 中文不能显示方框
+- [ ] 在 PowerPoint 里检查所有中文，没有方框 / ⬜ / 乱码
+- [ ] 如果出现方框：`fontFace` 改成 "Arial"（PowerPoint 会自动 fallback 到苹方/雅黑），不要用 "Helvetica" / "Inter" / 任何无中文字体
+
+### P0-3 · 图层不能错位
+- [ ] waterfall 条 / 2x2 气泡 / roadmap 色块——位置和 image-2 预览图一致，不偏移
+- [ ] 如果错位：所有 PNG 图层都必须用 `addImg(slide, img, 0, 0, W, H)` **整张铺满 1600×900**，不要按拆图后的坐标分别定位
+
+### P0-4 · 文件能在 PowerPoint 打开
+- [ ] mac 上 `open xxx.pptx` 能正常打开
+- [ ] 没有"文件已损坏 / 无法读取"提示
+- [ ] 如果打不开：检查 pptxgenjs 版本（要 ≥ 3.12），重新 `npm install`
+
+---
+
+## P1 · 视觉质量（影响"咨询感"）
+
+### P1-1 · 红色不能用爆
+- [ ] 整份 deck 的红色（#C62828）出现次数 ≤ 3
+- [ ] 每次红色都对应"最该看的那一项"（最高 KPI / 最关键象限 / 最强干预动作）
+- [ ] 如果出现 ≥ 4 次：删到只留最重要的 1-3 处
+
+### P1-2 · 配色克制
+- [ ] 没有玫红 / 桃红 / 亮紫 / 荧光绿 / 渐变 / 阴影
+- [ ] 没有 `border-radius` > 4px（咨询风默认直角；卡片最多 4px）
+- [ ] 浅背景块都是 #F4F6F8（pale），不是纯灰或冷灰
+
+### P1-3 · 结论先行
+- [ ] 每页大标题都是**结论句**，不是"关于 XX 的分析"这种描述性标题
+- [ ] 副标补论据（"基于 / 数据显示 / 拆解表明..."）
+- [ ] 如果标题描述性 > 结论性：改写成"行动 + 结论 + 量级"格式
+
+### P1-4 · 信息密度合理
+- [ ] 每页讲 3-4 个论点（KPI 行 / 矩阵 / 图表 / 决策含义 / next step）
+- [ ] 不要一页只讲 1 个论点（那是网页 A/B 风的事，C 路径要密度）
+- [ ] 也不要一页堆 8+ 个论点（看不过来）
+
+### P1-5 · 字号层级清晰
+- [ ] 大标题 22-26pt（bold）
+- [ ] 副标 10pt（color: muted）
+- [ ] KPI 大数字 25pt（bold + color）
+- [ ] KPI label 11pt（bold）
+- [ ] KPI note / chart label 8pt（color: muted）
+- [ ] 章节小标 9pt（bold）
+
+---
+
+## P2 · 网格 + 安全区（影响"整齐感"）
+
+### P2-1 · 元素对齐网格
+- [ ] 左边距统一（默认 105px）
+- [ ] 右边距统一（默认距右 1505px / 距 W=1600 95px）
+- [ ] 顶部内容起点统一（标题 ~72px，副标 ~140px）
+- [ ] KPI tile / 卡片之间间距均匀（默认 gap=330-335）
+
+### P2-2 · 底部 hairline 完整
+- [ ] 每页底部有一条 1px 淡灰横线（slideCommon 默认 y=840）
+- [ ] 内容不能压到这条线（最低不超过 y=820）
+
+### P2-3 · 左上页码 + 右上 section badge
+- [ ] 每页左上有 2 位补零的页码（"01"/"02"/"03"...）
+- [ ] 每页右上有 ALL CAPS 英文 section label（"EXECUTIVE SUMMARY" / "MARKET LANDSCAPE"...）
+- [ ] section label 颜色用 muted（#5C6773），不要 ink
+
+### P2-4 · waterfall / bar / roadmap 不溢出
+- [ ] waterfall 顶部最高条不超过 y=540（不能压标题）
+- [ ] 横向 benchmark bar 起点不能超过 x=1010（左侧给图表留位置）
+- [ ] roadmap 三条 lane 之间间距 ≥ 150px
+
+---
+
+## P3 · pptx 工程问题（避免后期返工）
+
+### P3-1 · 路径硬编码
+- [ ] `make-deck.js` 顶部的 `ROOT` 不要硬编码绝对路径
+- [ ] 默认用 `__dirname` 或 `process.env.PROJECT_ROOT`
+- [ ] 旧脚本里如果还有 `/Users/limingxuan/Downloads/...` 这种路径，必须改
+
+### P3-2 · 输出文件名带版本
+- [ ] 命名格式：`mckinsey_style_<项目名>_editable.pptx`
+- [ ] 多轮迭代时加版本号：`..._v2_editable.pptx` / `..._v3_editable.pptx`
+- [ ] 不要覆盖之前的版本（客户改完反馈时要能回滚）
+
+### P3-3 · 字体声明完整
+- [ ] `pptx.theme` 里设了 `headFontFace` 和 `bodyFontFace`（都用 "Arial"）
+- [ ] `pptx.lang = "zh-CN"`（影响 PowerPoint 字体 fallback 决策）
+
+### P3-4 · png_assets 目录可重建
+- [ ] `make-deck.js` 重跑会清空并重建 `png_assets/`
+- [ ] 不要手工放 PNG 进去——一切走 buildAssets 函数式生成
+- [ ] 如果有图片不是 SVG 程序化的（如设计师手画），单独建 `manual_assets/` 区分
+
+---
+
+## 交付前 90 秒终检
+
+按这 5 项过一遍就走：
+
+1. ✅ 点击大标题——能编辑
+2. ✅ 中文没方框
+3. ✅ 红色 ≤ 3 次
+4. ✅ 大标题是结论不是描述
+5. ✅ 底部 hairline 没被内容压住
+
+5 项过了 → 可以交付。
+任何 1 项不过 → 回 `make-deck.js` 修，再过一遍。
