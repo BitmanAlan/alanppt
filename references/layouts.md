@@ -168,14 +168,14 @@ layouts.md 使用的所有类（`h-hero` / `h-xl` / `h-sub` / `h-md` / `lead` / 
     <div>Vol.01</div>
   </div>
   <div class="frame" style="display:grid; gap:4vh; align-content:center; min-height:80vh">
-    <div class="kicker" data-anim>私享会 · 李继刚</div>
-    <h1 class="h-hero" data-anim>一人公司</h1>
-    <h2 class="h-sub" data-anim>被 AI 折叠的组织</h2>
+    <div class="kicker" data-anim>私享会 · 主题分享</div>
+    <h1 class="h-hero" data-anim>示例标题</h1>
+    <h2 class="h-sub" data-anim>副标题：用一句话补充核心命题</h2>
     <p class="lead" style="max-width:60vw" data-anim>
-      一个 AI 创作者 —— 在 64 天里做了 11 万行代码、在 9 个平台上持续输出，生活节奏几乎没有被改变。
+      在 lead 段落里放一个用反差或硬数据切入的引子，比如时间×产出×影响范围，把听众钉在座位上。
     </p>
     <div class="meta-row" data-anim>
-      <span>歸藏 Guizang</span><span>·</span><span>独立创作者 / CodePilot 作者</span>
+      <span>讲者名</span><span>·</span><span>身份 / 所属</span>
     </div>
   </div>
   <div class="foot">

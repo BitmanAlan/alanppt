@@ -1,55 +1,62 @@
-# Contributing
+# 维护说明
 
-Thanks for helping improve `guizang-ppt-skill`.
+本 skill 是 Alan 的私有维护项目，仓库在 `~/dev/alanppt/`，通过软链挂到 `~/.claude/skills/alanppt`。下面是日常修改时的几条硬规则。
 
-This project is a Skill for AI agents that generate polished HTML slide decks. The most useful contributions are specific, reproducible, and tied to real deck output.
+## 文件分工
 
-## Before Opening an Issue
+- `SKILL.md` — 整个 skill 的入口和主流程，加新路径或改决策表才动这里
+- `references/*.md` — 工作流细节、版式手册、自检清单，按路径分文件
+- `assets/template*.html` — A/B 路径的种子模板，CSS 类名的**唯一来源**
+- `assets/mckinsey-pptx/` — C 路径的 self-contained 工作目录（拷到项目就能用）
+- `scripts/validate-swiss-deck.mjs` — B 路径静态校验器
 
-Please check whether the problem belongs to one of these buckets:
+## 修改原则
 
-- Layout fidelity: a page drifts away from the registered template.
-- Content overflow: text, images, charts, or footers overlap.
-- Image workflow: generated images do not match the target slot ratio or deck style.
-- Runtime behavior: navigation, ESC overview, low-power mode, map interaction, or animations fail.
-- Documentation: installation, prompt usage, layout selection, or examples are unclear.
+### 模板（assets/template*.html）
 
-Screenshots are much more useful than descriptions alone. If possible, include:
+- 增加 layout 用到的新类时，**先在模板的 `<style>` 里补类**，再在 `layouts*.md` 里写骨架；不要让 layouts 引用未定义的类
+- 风格 A 和 B 的类名互不通用（同名语义不同），改一边不要顺手改另一边
+- 修改完跑一遍：用 `template-swiss.html` 自己生成一份 7 页测试 deck，浏览器打开过一遍 P0 检查
 
-- The prompt or source content used to generate the deck.
-- The generated `index.html`.
-- A screenshot of the broken slide.
-- Browser and OS information.
+### 版式手册（layouts*.md）
 
-## Pull Request Guidelines
+- 风格 A：可以新增 layout，扩展到 11/12/13 类
+- 风格 B：**严守 22 个登记版式**，新增正文页要先评估是不是真的不能用现有 S01-S22 改造
+- 新版式必须带 Pre-flight 类名清单
 
-Keep PRs focused. A small fix with a screenshot is easier to review than a large rewrite.
+### 校验器（scripts/validate-swiss-deck.mjs）
 
-For Swiss theme changes:
+- 加 B 路径新规则时同步更新校验器
+- 校验器是"硬约束的最后一道防线"，不能只靠 checklist 提醒
 
-- Do not invent new default body layouts unless the change is explicitly discussed.
-- Keep the registered layout system intact.
-- Run the Swiss validator:
+### C 路径（assets/mckinsey-pptx/）
+
+- `make-deck.js` 的咨询图表原语库要保持**项目无关**，新原语写成可参数化函数
+- `image2-prompt-template.md` 的 Shared Visual System 段是契约，改它要同步看下游 `make-deck.js` 的配色是否一致
+- 路径和命名硬规则在 `references/mckinsey-pptx.md` 的"文件路径约定"段
+
+### 自检清单（checklist*.md）
+
+- 踩过的坑及时归到对应 P0/P1/P2/P3 级别
+- 描述要带"现象 + 根因 + 做法"，单纯"不要 X"不行
+
+## 提交流程
 
 ```bash
-node scripts/validate-swiss-deck.mjs path/to/index.html
+cd ~/dev/alanppt
+# 改文件
+git add -A
+git commit -m "<area>: <one-line change> (<why>)"
 ```
 
-For template changes:
+commit subject 用 `<area>: <change>` 格式，例如：
+- `swiss-layouts: tighten S22 hero image safe zone (sub-title was clipped on 1366×768)`
+- `mckinsey-pptx: add diagnostic strip primitive to make-deck.js`
+- `skill: simplify path D trigger keywords table`
 
-- Verify at least one dense text slide.
-- Verify at least one image slide.
-- Verify navigation, ESC overview, and low-power mode.
+## 不要做的事
 
-## Good PRs Usually Include
-
-- A short summary of the problem.
-- The exact files changed.
-- Before / after screenshots when visual behavior changes.
-- Validation or manual QA notes.
-
-## Style Notes
-
-This Skill is opinionated by design. It prefers constrained layout systems over unlimited customization, because constraints make AI-generated decks more reliable.
-
-When in doubt, preserve the existing visual rules and improve the workflow around them.
+- 不要在生成的 PPT / HTML / 封面 / 配图里写入 "alanppt" 或任何第三方品牌名
+- 不要把 LICENSE 里的版权声明删掉（MIT 协议硬要求）
+- 不要给 A/B/C/D 四条路径之外的"第五条路径"开门，除非已经在 SKILL.md 里走完一轮决策表更新
+- 不要在 checklist 里写"看情况"、"视需要"这种模糊词，要么是硬规则要么不写
