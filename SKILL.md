@@ -1,73 +1,194 @@
 ---
 name: alanppt
-description: Alan 的 PPT 生成 skill — 用单文件 HTML 生成横向翻页网页 PPT。两种网页风格：① "电子杂志 × 电子墨水"（衬线 + 流体 WebGL + 暖色）适合行业观察 / 人文 / 商业发布；② "瑞士国际主义 Swiss Style"（无衬线 + 22 锁定版式 + IKB/柠檬黄/柠檬绿/安全橙单锚点）适合数据 / 技术 / AI 产品汇报。第三条路径：可编辑 .pptx 麦肯锡咨询风（image-first 工作流，资源在 references/mckinsey-pptx.md + assets/mckinsey-pptx/，适合客户汇报与 PowerPoint 二次编辑）。第四条路径：多平台封面（公众号 21:9 头图 / 1:1 分享卡 / 小红书 3:4 / 视频号 16:9 / 短视频 9:16 竖封），复用同一套视觉系统但独立构图。触发词：做 PPT / 生成 PPT / 做幻灯片 / 做一份分享 / 杂志风 PPT / 瑞士风 PPT / Swiss Style / 网页 PPT / 麦肯锡 PPT / 可编辑 pptx / horizontal swipe deck / 做封面 / 头图 / 分享卡 / 小红书封面 / 视频号封面。
+description: Alan 的专业咨询风 PPT skill — 单一视觉身份（McKinsey/BCG 调色板 + 无衬线 + 结论先行 + 网格至上），三种输出格式：① 单文件 HTML 横向翻页 deck（template-consulting.html + 10 个 layout 骨架，适合内部分享/发链接预览/Demo Day）；② 可编辑 pptx（image-first 工作流，资源在 references/mckinsey-pptx.md + assets/mckinsey-pptx/，适合客户咨询交付/高管展示/对方要继续改）；③ 多平台封面（公众号 21:9 / 1:1 / 小红书 3:4 / 视频号 16:9 / 短视频 9:16，复用同一视觉系统但独立构图）。触发词：做 PPT / 生成 PPT / 做幻灯片 / 做一份分享 / 麦肯锡 PPT / BCG 风 / 咨询风 / 可编辑 pptx / 客户汇报 / 高管展示 / 网页 deck / horizontal swipe deck / 做封面 / 头图 / 分享卡 / 小红书封面 / 视频号封面。
 ---
 
 # Alan PPT Skill
 
-> **重要**：本 skill 的来源、协议、依赖项及第三方致谢见 [LICENSE](./LICENSE) 与 [README.md](./README.md)。生成的 PPT、HTML 页面、封面或配图里**不要**写入 alanppt 或任何第三方品牌名。
+> **重要**：本 skill 只走"专业咨询风"一种视觉身份，三种输出格式共用同一套视觉系统。任何"杂志风 / 瑞士风 / WebGL 流体 / 装饰性视觉"的请求都属于过去版本被否定的方向，**不要在生成物里复活它们**。生成的 PPT / HTML / 封面 / 配图里也**不要写入** "alanppt" 或任何品牌名。
 
-## Alan 自定义层（必读 · 决定走哪条路径）
+## 设计身份（决定一切的根原则）
 
-这个 skill 有 **四条产出路径**，选哪条由内容性质、后续编辑需求和最终落位决定：
+**专业咨询风** · McKinsey / BCG / Bain 客户汇报材料的视觉语言
+
+| 维度 | 规则 |
+|---|---|
+| 视觉锚点 | 结论先行 · 网格至上 · 配色克制 · 信息密度高 · 无装饰 |
+| 字体 | **无衬线 only**：Inter / Helvetica / 苹方 / 雅黑 / Noto Sans SC；**任何衬线字体出现都是错的** |
+| 配色 | navy #17365D（主蓝）+ ink #17212B（文字）+ muted #5C6773（次要）+ line #D9DEE5（hairline）+ red #C62828（accent，**整份 deck ≤ 3 次**）+ green #3A7D5A / amber #D79B35（状态色，不做装饰） |
+| 装饰 | 1px hairline + 红色 vertical 标题钉 + 顶部色条 + 浅灰背景块 |
+| 禁用 | WebGL 流体 / 点阵 / 渐变 / 阴影 / 圆角 > 4px / Stock photo / 营销 hero scene / 商务握手图 |
+| 入场动效 | 极简：opacity 0→1 + 微 translateY + 数字 scaleIn + bar grow-in；**禁用** 流体 / 视差 / sequence |
+| 标题 | **必须是结论句**："动作可释放 18-24% EBITDA" 而不是 "EBITDA 分析" |
+| 信息密度 | 一页讲 3-4 个论点；不是"一页一句话"，但也不堆 8+ 个 |
+
+---
+
+## 三种输出格式（决定走哪条路径）
+
+由"最终落位 + 后续编辑需求"决定走哪条：
 
 | 路径 | 输出格式 | 何时用 | 资源位置 |
 |---|---|---|---|
-| **A · 杂志风网页 PPT** | 单文件 HTML | 行业观察 / 人文分享 / 商业发布 / 演讲 | `assets/template.html` + `references/themes.md` + `references/layouts.md` |
-| **B · 瑞士风网页 PPT** | 单文件 HTML | 数据汇报 / 技术发布 / AI 产品 / 年度总结 | `assets/template-swiss.html` + `references/themes-swiss.md` + `references/swiss-layout-lock.md` + `references/layouts-swiss.md` |
-| **C · 麦肯锡可编辑 pptx** | .pptx | 客户咨询汇报 / 高管展示 / 需要在 PowerPoint 里二次编辑 | `references/mckinsey-pptx.md`（工作流主文档）+ `assets/mckinsey-pptx/`（含 `image2-prompt-template.md` + `decompose-prompt.md` + `rebuild-prompt.md` + `make-deck.js` + `package.json`）+ `references/checklist-mckinsey.md`（自检清单） |
-| **D · 多平台封面** | 单张图片（21:9 / 1:1 / 3:4 / 16:9 / 9:16） | 公众号头图 / 朋友圈分享卡 / 小红书封面 / 视频号封面 / 短视频竖封 | `references/cover-specs.md`（复用 `themes.md` / `themes-swiss.md` 主题色） |
+| **HTML · 网页 deck** | 单文件 HTML（横向翻页） | 内部分享 / 发链接给客户预览 / Demo Day / 演讲 | `assets/template-consulting.html` + `references/layouts-consulting.md` |
+| **PPTX · 可编辑** | .pptx | 客户咨询交付 / 高管展示 / 对方要在 PowerPoint 里继续改 | `assets/mckinsey-pptx/` + `references/mckinsey-pptx.md` + `references/checklist-mckinsey.md` |
+| **COVER · 多平台封面** | 单张图片（21:9 / 1:1 / 3:4 / 16:9 / 9:16） | 公众号头图 / 朋友圈分享卡 / 小红书封面 / 视频号封面 / 短视频竖封 | `references/cover-specs.md` |
 
 ### 选路径快问快答
 
 | 用户的说法 | 走哪条 |
 |---|---|
-| "做个分享 PPT" / "做个演讲 deck" / "做个 demo" | A 或 B（再问内容性质） |
-| "做个汇报" / "做个总结" / "做季度报告" | **B**（瑞士风更专业） |
-| "客户要咨询风格" / "麦肯锡风" / "BCG 风" / "执行汇报" | **C** |
-| "PPT 要发给别人改" / "要能在 PowerPoint 里编辑" / "要 .pptx 文件" | **C** |
-| "网页 PPT" / "发链接就能看" / "一打开就能用" | A 或 B |
-| "杂志风" / "人文" / "Monocle 风" | **A** |
-| "瑞士风" / "Swiss Style" / "Helvetica" / "极简" / "网格" | **B** |
-| "做个封面" / "做张头图" / "公众号头图" / "21:9 封面" | **D** |
-| "分享卡" / "朋友圈缩略图" / "1:1 封面" | **D** |
-| "小红书封面" / "小红书图" / "3:4 封面" / "笔记封面" | **D** |
-| "视频号封面" / "B 站封面" / "YouTube 缩略图" / "横版封面" | **D** |
-| "抖音封面" / "短视频封面" / "竖版封面" / "9:16 封面" | **D** |
-| 没说清楚 | **先问输出形式**：网页 HTML / 可编辑 pptx / 单张封面图？再问内容性质决定 A/B/D |
+| "做个分享 PPT" / "做个 demo deck" / "做个演讲" | **HTML**（默认）|
+| "要 .pptx 文件" / "客户要 PowerPoint 改" / "高管汇报 deck" | **PPTX** |
+| "发链接就能看" / "网页版" / "一打开就能用" | **HTML** |
+| "做个封面" / "做张头图" / "公众号头图" / "21:9 封面" | **COVER** |
+| "分享卡" / "朋友圈缩略图" / "1:1 封面" | **COVER** |
+| "小红书封面" / "3:4 封面" / "笔记封面" | **COVER** |
+| "视频号封面" / "B 站封面" / "YouTube 缩略图" | **COVER** |
+| "抖音封面" / "短视频封面" / "9:16 竖封" | **COVER** |
+| 没说清楚 | **先问输出形式**：网页 HTML / 可编辑 pptx / 单张封面图？ |
 
-### Alan 偏好（中文场景默认）
+### Alan 偏好（默认值）
 
 - **默认中文**。所有口播、文案、caption 都用简体中文，除非用户明确要英文 deck。
-- **避免互联网营销腔**。"震撼"、"颠覆"、"赋能"、"重新定义"这类词直接砍掉；改用具体动词和数字。
-- **PPT 文件路径默认放 `~/Desktop/<项目名>/ppt/`**，`images/` 与 `index.html` 同级。
-- **封面文件路径默认放 `~/Desktop/<项目名>/covers/`**，命名 `cover-{平台}-{比例}.jpg`（例如 `cover-gzh-21x9.jpg` / `cover-xhs-3x4.jpg`）。
-- **生成 deck 前先写一份大纲 markdown**（叙事弧：钩子 → 定调 → 主体 → 转折 → 收束），保存为 `项目记录.md` 或 `大纲-v1.md`，便于后续迭代。
-- **图片优先用真实素材或自己生成**，没有就用占位色块；**不要**用 stock photo 库的"商务握手 / 团队会议"那种通用照片——视觉一秒掉档次。
-- **四条路径不混用**。一份 deck 只走一条；如果客户既要网页版又要 pptx，**分别做两份**。封面（D）可以和任意 deck 路径配套生成，但**不要直接截 deck 的某一页当封面**——必须按 `cover-specs.md` 重新构图。
+- **避免互联网营销腔**。"震撼 / 颠覆 / 赋能 / 重新定义"这类词直接砍掉；改用具体动词和数字。
+- **文件路径默认放 `~/Desktop/<项目名>/<格式>/`**：
+  - HTML：`~/Desktop/<项目名>/deck/index.html`，`images/` 同级
+  - PPTX：`~/Desktop/<项目名>/pptx/`，含 `png_assets/` / `page_visual_previews/`
+  - COVER：`~/Desktop/<项目名>/covers/`，命名 `cover-{平台}-{比例}.jpg`（例如 `cover-gzh-21x9.jpg`）
+- **生成前先写一份大纲 markdown**（叙事弧：结论 → 论据 → 拆解 → 路径 → 收束），保存为 `项目记录.md` 或 `大纲-v1.md`，便于后续迭代。
+- **三种格式不混用**。一份 deck 只走一条；如果客户既要网页版又要 pptx，**分别做两份**。封面（COVER）可以和任意 deck 配套生成，但**不要直接截 deck 的某一页当封面**——必须按 `cover-specs.md` 重新构图。
 
-### 第三条路径（C · 麦肯锡 pptx）使用说明
+---
 
-C 路径的资源**已全部烤进 skill**，不再依赖外部目录。入口文件：`references/mckinsey-pptx.md`（**走 C 路径前必读**）。
+## HTML 路径 · 工作流（网页 deck）
 
-工作流概览（详细见 `references/mckinsey-pptx.md`）：
+### Step 1 · 需求澄清
+
+**如果用户已经给了完整大纲 + 图片要求**，可以跳过直接进 Step 2。
+
+**如果用户只给了主题或模糊想法**，用下面 6 个问题逐项对齐：
+
+| # | 问题 | 为什么要问 |
+|---|------|-----------|
+| 1 | **受众是谁？汇报场景？**（内部分享 / 客户汇报 / Demo Day / 高管展示） | 决定语言风格和深度 |
+| 2 | **分享时长？** | 15 分钟 ≈ 10 页，30 分钟 ≈ 15 页，45 分钟 ≈ 20-25 页 |
+| 3 | **有没有原始素材？**（数据 / 旧 deck / 文章 / 调研结果） | 有素材就基于素材，没有就帮他搭 |
+| 4 | **核心结论是什么？**（一句话能说清吗？） | 整份 deck 的第 1 页标题就是这一句 |
+| 5 | **有没有图片或截图？怎么处理？** | 决定图文版式和落位比例 |
+| 6 | **有没有硬约束？**（必须包含 XX 数据 / 不能出现 YY） | 避免返工 |
+
+### Step 2 · 拷贝模板
+
+```bash
+mkdir -p "项目/XXX/deck/images"
+cp "<SKILL_ROOT>/assets/template-consulting.html" "项目/XXX/deck/index.html"
+```
+
+模板是**完整可运行**的——CSS、字体、翻页 JS、ESC 索引、低功耗模式、动效全已预设好。
+
+#### 2.1 · 必改占位符（**容易漏**）
+
+| 位置 | 原始 | 需改为 |
+|------|------|--------|
+| `<title>` | `[必填] 替换为 Deck 标题` | 实际 deck 标题 |
+| 封面 `.deck-meta` | `[替换：客户名 / 项目名]` | 客户名或项目名 |
+| 封面汇报对象 | `[替换：CEO / 董事会]` | 实际汇报对象 |
+| 封面汇报人 | `[替换：Alan Lee]` | 实际汇报人 |
+
+每次拷贝完第一件事：grep 一下"[替换" 和 "[必填"确认全部替换完。
+
+### Step 3 · 填充内容
+
+#### 3.0 · 预检：类名必须在模板里有定义
+
+写 slide 前先 Read `assets/template-consulting.html` 的 `<style>` 块，确认你要用的每个 class 都在。layouts-consulting.md 顶部有 Pre-flight 类名清单，对照着检查。
+
+#### 3.0.5 · 规划主题节奏
+
+**在挑布局之前**，必须先列出每一页的 light / dark：
+
+- 7 页以下：1 个 dark hero 即可
+- 8-15 页：≥ 1 个 dark hero + ≥ 1 个 dark 章节幕封
+- 15+ 页：每 4-5 页插入 1 个 dark 页换气
+- 连续 3 页以上同 light/dark = 视觉疲劳，不允许
+
+#### 3.1 · 挑布局
+
+打开 `references/layouts-consulting.md`，里面有 **10 种现成 layout 骨架**：
+
+| Layout | 用途 |
+|---|---|
+| 1. Cover | 开场封面（结论先行大标题） |
+| 2. Section Divider | 章节幕封（dark 页） |
+| 3. Executive Summary | 3 KPI tiles + 决策含义 + 诊断链路 |
+| 4. 2x2 Matrix | 市场象限 / 战略矩阵 + benchmark bars |
+| 5. Roadmap Swimlanes | 3 工作流 × 4 时间段 + scorecard |
+| 6. Value Waterfall | 价值瀑布 / EBITDA 桥 |
+| 7. Process / Diagnostic | 横向 N 节点流程 |
+| 8. Option Comparison | 3 套方案对比 |
+| 9. Big Statement | 大引述 / manifesto（dark 页 + h-statement） |
+| 10. Closing / Next Steps | 收尾页 + 3 条 next + 时间窗 |
+
+选对应 layout，粘过去，改文案。**务必先完成 3.0 预检**。
+
+#### 3.2 · 图片处理
+
+如果 deck 里要插图，图片放 `项目/XXX/deck/images/`，命名 `{页号}-{语义}.{ext}`（如 `03-matrix.png`）。
+
+- 单张 ≥ 1600px 宽
+- JPG 用于照片 / 截图，PNG 用于透明 UI
+- 总大小 ≤ 10MB
+- **绝对禁用** stock photo（商务握手 / 团队会议）
+
+### Step 4 · 对照检查清单自检
+
+按下面 5 项过一遍：
+
+1. ✅ **结论先行**：每页大标题都是结论，不是"XX 分析"这种描述
+2. ✅ **配色克制**：红色 ≤ 3 次；没有渐变 / 阴影 / 圆角 > 4px
+3. ✅ **字体只用无衬线**：grep `serif` 应该为空
+4. ✅ **节奏合理**：light / dark 交替，没有连续 3 页同主题
+5. ✅ **底部不压 nav**：内容收尾 ≤ 93vh，nav 在 ~97vh
+
+### Step 5 · 本地预览
+
+```bash
+open "项目/XXX/deck/index.html"
+```
+
+不需要本地服务器。键盘 ← → 翻页 / ESC 索引 / B 低功耗 / F 全屏 / 1-9 直跳。
+
+### Step 6 · 迭代
+
+90% 的调整是改 inline style（字号 `font-size:Xvw` / 高度 `height:Yvh` / 间距 `gap:Zvh`）。
+
+---
+
+## PPTX 路径 · 工作流（可编辑 pptx）
+
+**入口文档**：`references/mckinsey-pptx.md`（走 PPTX 前必读）
+
+简要流程：
 
 1. **生成 16:9 整页视觉**：用 GPT-Image-2 / Nano Banana / Imagen，按 `assets/mckinsey-pptx/image2-prompt-template.md` 的 Shared Visual System + 单页 Prompt 模板生成
 2. **拆分透明 PNG**（可选，标准图表可跳过）：按 `assets/mckinsey-pptx/decompose-prompt.md` 的 Prompt 把每页拆成透明 PNG 素材
 3. **重建可编辑 pptx**：把 `assets/mckinsey-pptx/` 整个目录拷到项目根，改 `make-deck.js` 顶部的 PROJECT 常量和 `addSlideN` 函数，跑 `npm install && node make-deck.js`
 4. **自检**：按 `references/checklist-mckinsey.md` 的 P0/P1/P2/P3 清单逐项核对，在 PowerPoint 里打开验证文字可编辑
 
-适合客户场景：用户要的是"可以接着改的 .pptx 文件"，而不是只能看的网页。
+**与 HTML 路径的差异**：
+- HTML：纯网页 / 浏览器翻页 / CSS class
+- PPTX：.pptx / PowerPoint 翻页 / pptxgenjs SVG+PNG+文本框
 
-**与 A/B 路径的硬区别**（不要混用）：
-- A/B 路径：单文件 HTML / 浏览器翻页 / CSS class + Motion 动画 / 强烈个人风格
-- C 路径：.pptx / PowerPoint 翻页 / SVG + PNG + 可编辑文本框 / 克制咨询风、信息密度高、结论先行
+**视觉系统完全一致**：同样 McKinsey 调色板、同样 Inter 字体（pptx 用 Arial 兼容性更好但视觉等价）、同样结论先行原则。
 
-**归档资料**（不需要主动读，做参考用）：原始实验在 `~/dev/ppt/v1_local_rebuild/` 和 `~/dev/ppt/v2_image2_workflow/`，新项目走 skill 内部资源即可。
+---
 
-### 第四条路径（D · 多平台封面）使用说明
+## COVER 路径 · 工作流（多平台封面）
 
-D 路径**不生成 deck**，只生成单张封面图。覆盖五种平台尺寸：
+**入口文档**：`references/cover-specs.md`（走 COVER 前必读）
+
+COVER 路径**不生成 deck**，只生成单张封面图。覆盖五种平台尺寸：
 
 | 平台 | 比例 | 安全区注意 |
 |---|---|---|
@@ -80,432 +201,11 @@ D 路径**不生成 deck**，只生成单张封面图。覆盖五种平台尺寸
 工作流：
 
 1. **问清平台**：哪个尺寸？要不要一起做多平台（一次最多 4 个）？
-2. **选风格**：复用 deck 的风格 A（杂志风）或风格 B（瑞士风），没 deck 就按内容性质决定
-3. **选主题色**：从 `themes.md`（A · 5 套）或 `themes-swiss.md`（B · 4 套）选一套，和 deck 保持一致
-4. **抽标题**：A 路径 ≤ 14 个中文字 / B 路径 ≤ 10 个中文字
-5. **按 `references/cover-specs.md` 的 Prompt 模板**生成
-6. **保存到** `~/Desktop/<项目名>/covers/`，命名 `cover-{平台}-{比例}.jpg`
+2. **抽标题**：≤ 12 个中文字符，必须是**结论句**或**强反差**
+3. **按 `cover-specs.md` 的 Prompt 模板**生成
+4. **保存到** `~/Desktop/<项目名>/covers/`，命名 `cover-{平台}-{比例}.jpg`
 
 **绝不要直接截 deck 的某一页当封面**——deck 横向版式信息密度低，缩到 1:1 或 3:4 会留白过多、字号失衡。封面必须按 `cover-specs.md` 重新构图。
-
----
-
-## 网页 PPT 部分做什么（A/B 路径）
-
-生成一份**单文件 HTML**的横向翻页 PPT，提供两种可选的视觉基调：
-
-### 风格 A · 电子杂志 × 电子墨水（默认）
-
-- **WebGL 流体 / 等高线 / 色散背景**（hero 页可见）
-- **衬线标题（Noto Serif SC + Playfair Display）+ 非衬线正文 + 等宽元数据**
-- 适合：人文分享、行业观察、商业发布、需要"杂志感"的演讲
-- 模板：`assets/template.html` · 主题色：`references/themes.md` · 布局：`references/layouts.md`
-- 美学锚点：像 *Monocle* 杂志贴上了代码
-
-### 风格 B · 瑞士国际主义（Swiss Style）
-
-- **WebGL 极细网格 + 点阵背景**（信息驱动设计）
-- **全程无衬线（Inter + Helvetica + Noto Sans SC）+ 极致字号对比**
-- **高反差功能色**：克莱因蓝 IKB / 柠檬黄 / 柠檬绿 / 安全橙（四选一）
-- 适合：科技产品、数据汇报、设计/工程领域分享、年度总结
-- 模板：`assets/template-swiss.html` · 主题色：`references/themes-swiss.md` · 布局：`references/layouts-swiss.md`
-- 美学锚点：像 Massimo Vignelli + Helvetica Forever
-
-**两种风格共享**：横向翻页（键盘 ← →、滚轮、触屏、ESC 索引）、Lucide 图标、Motion One 入场动效（本地 + CDN 双保险）。
-
-## 何时使用
-
-**合适的场景**：
-- 线下分享 / 行业内部讲话 / 私享会
-- AI 新产品发布 / demo day
-- 带有强烈个人风格的演讲
-- 需要"一次做完，不用翻页工具"的网页版 slides
-
-**不合适的场景**：
-- 大段表格数据、图表叠加（用常规 PPT）
-- 培训课件（信息密度不够）
-- 需要多人协作编辑（这是静态 HTML）
-
-## 工作流
-
-### Step 1 · 需求澄清(**动手前必做**)
-
-**如果用户已经给了完整的大纲 + 图片/截图处理要求**,可以跳过直接进 Step 2。
-
-**如果用户只给了主题或一个模糊想法**,用这 7 个问题逐个对齐后再动手。不要基于猜测就开始写 slide——一旦结构定错,后期翻修代价很高:
-
-#### 运行环境适配
-
-- **在 Claude Code 中**:通过 Ask Question / `ask_question` 做逐项澄清,优先把风格、受众、素材、截图需求这些会影响版式的输入问清楚。
-- **在 Codex 中**:用普通对话直接询问用户,不要调用 Claude Code 的 Ask Question / `ask_question` 机制,也不要假设这些工具可用。一次最多问 1-3 个最关键问题;如果信息缺口不影响开工,先做合理假设并在回复里说明。
-
-#### 7 问澄清清单
-
-| # | 问题 | 为什么要问 |
-|---|------|-----------|
-| 1 | **风格 A 还是 B?**(电子杂志风 / 瑞士国际主义风) | **必须先问**,决定用哪个 template + layouts + themes 文件 |
-| 2 | **受众是谁?分享场景?**(行业内部 / 商业发布 / demo day / 私享会) | 决定语言风格和深度 |
-| 3 | **分享时长?** | 15 分钟 ≈ 10 页,30 分钟 ≈ 20 页,45 分钟 ≈ 25-30 页 |
-| 4 | **有没有原始素材?**(文档 / 数据 / 旧 PPT / 文章链接) | 有素材就基于素材,没有就帮他搭 |
-| 5 | **有没有图片或截图?希望怎么处理?** | 决定图文版式、图片槽位、截图是否需要 CleanShot X 式适配或 GPT-M 2.0 重构 |
-| 6 | **想要哪套主题色?** | 杂志风 5 套(`themes.md`) / 瑞士风 4 套(`themes-swiss.md`),挑一 |
-| 7 | **有没有硬约束?**(必须包含 XX 数据 / 不能出现 YY) | 避免返工 |
-
-#### 风格选择参考(问题 1)
-
-| 如果用户说... | 推荐风格 |
-|---|---|
-| "杂志感" / "人文" / "Monocle 风" / 不指定 | **A · 电子杂志风** |
-| "瑞士风" / "Swiss Style" / "Helvetica" / "极简" / "网格" / "信息图" / "数据驱动" | **B · 瑞士国际主义风** |
-| 内容是 AI 产品 / 技术 / 工程 / 数据汇报 | B 更合适 |
-| 内容是行业观察 / 人文 / 故事 / 文化 | A 更合适 |
-| 用户给了大量 KPI 数字 / 路线图 / 流程 | B 更合适(`Data Hero` 布局是瑞士风专长) |
-| 用户给了大量纪实照片 / 人文图片 | A 更合适(图片网格、左文右图是杂志风专长) |
-| 用户需要 GPT-M 2.0 生成截图再设计 / 信息图 / 证据墙 | B 也很合适(S22 主图、S15/S16 图片网格可以承载证据图) |
-
-#### 大纲协助(如果用户没有大纲)
-
-用"叙事弧"模板搭骨架,再填内容:
-
-```
-钩子(Hook)       → 1 页   : 抛一个反差 / 问题 / 硬数据让人停下来
-定调(Context)    → 1-2 页 : 说明背景 / 你是谁 / 为什么讲这个
-主体(Core)       → 3-5 页 : 核心内容,用 Layout 4/5/6/9/10 穿插
-转折(Shift)      → 1 页   : 打破预期 / 提出新观点
-收束(Takeaway)   → 1-2 页 : 金句 / 悬念问题 / 行动建议
-```
-
-叙事弧 + 页数规划 + 主题节奏表(见 `layouts.md`),**三张表对齐后**再进 Step 2。
-
-大纲建议保存为 `项目记录.md` 或 `大纲-v1.md`,便于后续迭代。
-
-#### 图片约定(告知用户)
-
-在动手前向用户说清:
-
-- **文件夹位置**:`项目/XXX/ppt/images/` 下(和 `index.html` 同级)
-- **命名规范**:`{页号}-{语义}.{ext}`,例如 `01-cover.jpg` / `03-figma.jpg` / `05-dashboard.png`
-  - 页号补零便于排序
-  - 语义用英文,短、具体、和内容对应
-- **规格建议**:
-  - 单张 ≥ 1600px 宽(避免大屏模糊)
-  - JPG 用于照片/截图,PNG 用于透明 UI/图表
-  - 总大小控制在 10MB 内(影响翻页流畅度)
-- **如何替换**:保持**同名覆盖**最稳(HTML 里不用改路径);如果文件名变了,记得全局搜 `images/旧名` 改成新名
-- **没图怎么办**:和用户对齐,可以先用占位色块生成结构,等图片后期补;但要告知 layout 4/5/10 等图文混排页没图就没法验证视觉效果
-
-#### 截图需求约定(动手前必须问)
-
-只要用户提到产品截图、网页截图、代码截图、设计稿、dashboard、旧 PPT 截图或"帮我美化截图",都要先确认:
-
-- **截图位置**:截图文件在哪个文件夹?是否已经命名好?
-- **使用目的**:保真展示 / 截图美化 / 截图再设计 / UI 情景图?
-- **落位比例**:最终放进哪个版式槽位?常用 `21:9` / `16:10` / `16:9` / `4:3` / `1:1`
-- **内容要求**:是否必须保留全部文字、品牌、数据?是否有敏感信息要遮挡?
-- **视觉处理**:是否需要主题背景、留边、居中/角落对齐、拆成长截图面板?
-
-默认策略:先让内容适配模板,再处理图片比例。截图需要保真时,先读 `references/screenshot-framing.md`,优先使用 `assets/screenshot-backgrounds/` 的内置背景资产做程序化 CleanShot X 式背景画布适配;只有原截图太乱、太长、太窄或需要概念化表达时,才用 GPT-M 2.0 做截图再设计。
-
-#### Codex 配图生成(可选)
-
-如果当前运行环境是 **Codex**,完成 deck 初稿后,主动问用户是否需要用 GPT-M 2.0 生成配图并插入 PPT。不要默认生成。
-
-推荐询问方式:
-
-> 要不要为这份 PPT 生成几张配图?可以做成人文纪实照片、杂志风信息图、流程/对比/系统关系图,或把截图再设计成统一的杂志风视觉。
-
-如果用户确认生成,再问他想要哪种图片类型或风格;如果用户没有偏好,根据页面内容自行推荐 1-3 张最值得生成的配图。
-
-如果用户提供的是截图,先判断是**截图美化**还是**截图再设计**:
-
-- 截图美化:读 `references/screenshot-framing.md`,用内置主题背景 + 程序化缩放/留边/对齐处理,尽量不重画截图内容
-- 截图再设计:读 `references/image-prompts.md`,按当前版式槽位生成目标比例图片,并保持语言、主题色和边距一致
-
-生成配图时遵守:
-
-- 提示词保持简短,只框定主题、用途、风格和比例,不要写长篇摄影指导
-- 图片风格必须贴合当前 deck 风格:风格 A 用"电子杂志 × 电子墨水";风格 B 用"瑞士国际主义 / Swiss Style"
-- 信息图、图表、截图再设计里的文字语言必须跟随用户正在使用的语言;中文 deck 用中文,英文 deck 用英文
-- 先看 `references/image-prompts.md` 选择图片类型和基础提示词
-- 如果处理用户原始截图,先看 `references/screenshot-framing.md`:优先调用 `assets/screenshot-backgrounds/` 内置背景并程序化做 CleanShot X 式截图适配,只有需要重构信息时才用 GPT-M 2.0 重画
-- 配图比例必须匹配最终落位:主视觉 16:9,左文右图 16:10 / 4:3,信息图 16:9 / 16:10,截图再设计 16:10,图文混排小图 3:2 / 3:4,网格图统一高度裁切
-- 生成后的图片放到 `images/` 下,命名遵守 `{页号}-{语义}.{ext}`
-
-### Step 2 · 拷贝模板
-
-**根据 Step 1 选定的风格,拷贝对应的模板**到目标位置（通常是 `项目/XXX/ppt/index.html`），同时在同级建一个 `images/` 文件夹准备接图片。
-
-```bash
-mkdir -p "项目/XXX/ppt/images"
-
-# 风格 A · 电子杂志风
-cp "<SKILL_ROOT>/assets/template.html" "项目/XXX/ppt/index.html"
-
-# 或 风格 B · 瑞士国际主义风
-cp "<SKILL_ROOT>/assets/template-swiss.html" "项目/XXX/ppt/index.html"
-```
-
-两个 `template*.html` 都是**完整可运行**的文件——CSS、WebGL shader、翻页 JS、字体/图标 CDN 全已预设好,只有 `<!-- SLIDES_HERE -->` 占位符等待你填充 slide 内容。
-
-**注意**:风格 A 和 B **不能混用**。layouts.md 里的类（如 `.h-hero` 衬线大标题、`.display-zh` 等）只在 template.html 有定义；layouts-swiss.md 里的类（如 `.kpi-hero`、`.accent-block`、`.span-N`、`.dots` 等）只在 template-swiss.html 有定义。一份 deck 只能选一套。
-
-#### 2.1 · 必改占位符（**容易漏**）
-
-拷贝后立刻改掉以下占位符，否则浏览器 Tab 会显示"[必填] 替换为 PPT 标题"这种尴尬文字：
-
-| 位置 | 原始 | 需改为 |
-|------|------|--------|
-| `<title>` | `[必填] 替换为 PPT 标题 · Deck Title` | 实际 deck 标题(如 `一种新的工作方式 · Luke Wroblewski`) |
-
-每次拷贝完 template.html 第一件事:grep 一下"[必填]" 确认全部替换完。
-
-#### 2.2 · 选定主题色(5 套预设 · 不允许自定义)
-
-本 skill **只允许从 5 套精心调配的预设里选一套**,不接受用户自定义 hex 值——颜色搭配错了画面瞬间变丑,保护美学比给自由更重要。
-
-| # | 主题 | 适合 |
-|---|------|------|
-| 1 | 🖋 墨水经典 | 通用 / 商业发布 / 不知道选啥的默认 |
-| 2 | 🌊 靛蓝瓷 | 科技 / 研究 / 数据 / 技术发布会 |
-| 3 | 🌿 森林墨 | 自然 / 可持续 / 文化 / 非虚构 |
-| 4 | 🍂 牛皮纸 | 怀旧 / 人文 / 文学 / 独立杂志 |
-| 5 | 🌙 沙丘 | 艺术 / 设计 / 创意 / 画廊 |
-
-**操作**:
-1. 基于内容主题推荐一套,或直接问用户选哪一套
-2. 打开 `references/themes.md`,找到对应主题的 `:root` 块
-3. **整体替换** `assets/template.html`(已拷贝版本)开头 `:root{` 块里标有"主题色"注释的那几行(`--ink` / `--ink-rgb` / `--paper` / `--paper-rgb` / `--paper-tint` / `--ink-tint`)
-4. 其他 CSS 都走 `var(--...)`,无需任何其他改动
-
-**硬规则**:
-- 一份 deck 只用一套主题,不要中途换色
-- 不要接受用户给的任意 hex 值——委婉拒绝并展示 5 套让选
-- 不要混搭(例如 ink 取墨水经典、paper 取沙丘)——会彻底违和
-
-### Step 3 · 填充内容
-
-#### 3.0 · 预检:类名必须在模板的 `<style>` 里有定义（**最重要**）
-
-**这是所有生成问题的源头**。layouts 骨架使用了很多类名,如果模板的 `<style>` 里没有对应定义,浏览器会 fallback 到默认样式——大标题字体错、卡片挤成一团、pipeline 糊成一行、图片堆到页面底部。
-
-**两种风格类名互不通用**(再次强调):
-- 风格 A 模板里有 `h-hero`(衬线)、`stat-card`、`grid-2-7-5`、`frame` 等
-- 风格 B 模板里有 `h-hero`(无衬线)、`kpi-hero`、`accent-block`、`span-N`、`dots`、`grid-12` 等
-- 同名 class 在两个模板里**视觉表现完全不同**(例:风格 A 的 `h-hero` 是 Noto Serif SC 衬线,风格 B 的 `h-hero` 是 Inter 无衬线)
-
-**在写任何 slide 代码之前:**
-
-1. **先 Read 当前用的模板**(至少读到 `<style>` 块末尾):
-   - 风格 A → `assets/template.html`
-   - 风格 B → `assets/template-swiss.html`
-2. **对照对应 layouts 文件的 Pre-flight 列表**,确认你要用的每个类都在 `<style>` 里存在
-3. 如果某个类缺失:**在模板的 `<style>` 里补上**,不要在每个 slide 里 inline 重写
-4. **模板是唯一的类名来源**——不要发明新类名,如需自定义用 `style="..."` inline
-
-**风格 A 常见容易遗漏的类**:
-`h-hero` / `h-xl` / `h-sub` / `h-md` / `lead` / `kicker` / `meta-row` / `stat-card` / `stat-label` / `stat-nb` / `stat-unit` / `stat-note` / `pipeline-section` / `pipeline-label` / `pipeline` / `step` / `step-nb` / `step-title` / `step-desc` / `grid-2-7-5` / `grid-2-6-6` / `grid-2-8-4` / `grid-3-3` / `grid-6` / `grid-3` / `grid-4` / `frame` / `frame-img` / `img-cap` / `callout` / `callout-src` / `chrome` / `foot`
-
-**风格 B 常见容易遗漏的类**(2026-05 重构后):
-- 画布:`canvas-card` / `chrome-min`
-- 排版:`h-hero`(无衬线 7.4vw weight 200) / `h-statement`(9.6vw) / `h-xl` / `h-md` / `t-cat`(SemiBold 600 小标) / `t-meta`(mono uppercase) / `lead` / `num-mega` / `mono`
-- 卡片(四类互斥):`card-ink` / `card-accent` / `card-fill` / `card-outlined`
-- 网格:`grid-12` / `grid-2-9` / `grid-2-9-5` / `span-N`
-- 时间线:`timeline-v` + `tl-node` + `tl-axis` + `dot` / `timeline-h` + `tl-h-node` + `tl-h-axis`
-- 图表:`kpi-tower-row` + `bar-tower` / `h-bar-chart` + `bar-row` + `bar-fill` / `spec-bars` + `bar-vert`
-- 装饰:`dot-mat`(SVG mask 实心点)/ `ring-mat`(描边圆)/ `cross-mat`(× 网格)/ `hr-hairline`
-- 版式专属:`cover-split` / `closing-split` / `duo-compare` + `vrule` / `manifesto-top` + `ink-banner-full` / `three-forces` / `loop-diagram` / `matrix-fill` + `matrix-cell` / `brief-grid` + `brief-card` / `system-diagram` / `why-now-grid` / `four-cards` / `stacked-ledger` + `ledger-row` / `tech-spec` / `image-hero` + `hero-img-wrap` + `hero-overlay-block` + `hero-stats`
-- 图片混排:`frame-img` / `fit-contain` / `r-21x9` / `r-16x9` / `r-16x10` / `h-22` / `h-26` / `swiss-img-split` / `swiss-img-grid` / `swiss-img-caption` / `swiss-keyline` / `swiss-lined`
-- spacing token:`--sp-3`...`--sp-13`(8/12/16/24/32/40/48/64/80/96/160 px)
-
-#### 3.0.5 · 规划主题节奏（**和类预检同等重要**)
-
-**在挑布局之前**,必须先列出每一页的主题 class(`hero dark` / `hero light` / `light` / `dark`)并写到文档或草稿里对齐。详细规则看 `references/layouts.md` 开头的"主题节奏规划"一节。
-
-**强制规则**:
-
-- 每页 section 必须带 `light` / `dark` / `hero light` / `hero dark` 之一,不要只写 `hero`
-- 连续 3 页以上同主题 = 视觉疲劳,不允许
-- 8 页以上必须有 ≥1 个 `hero dark` + ≥1 个 `hero light`
-- 整个 deck 不能只有 `light` 正文页,必须有 `dark` 正文页制造呼吸
-- 每 3-4 页插入 1 个 hero 页(封面/幕封/问题/大引用)
-
-**生成后自检**:`grep 'class="slide' index.html` 列出所有主题,人工确认节奏合理再交付。
-
-#### 3.1 · 挑布局
-
-**不要从零写 slide**。打开对应的 layouts 文件,里面有 10 种现成布局骨架,每种都是完整可粘贴的 `<section>` 代码块。
-
-**风格 A** → `references/layouts.md`:
-
-| Layout | 用途 |
-|---|---|
-| 1. 开场封面 | 第 1 页 |
-| 2. 章节幕封 | 每幕开场 |
-| 3. 数据大字报 | 抛硬数据 |
-| 4. 左文右图(Quote + Image) | 身份反差 / 故事 |
-| 5. 图片网格 | 多图对比 / 截图实证 |
-| 6. 两列流水线(Pipeline) | 工作流程 |
-| 7. 悬念收束 / 问题页 | 幕末 / 收尾 |
-| 8. 大引用页(Big Quote) | 衬线金句 / takeaway |
-| 9. 并列对比(Before / After) | 旧模式 vs 新模式 |
-| 10. 图文混排(Lead Image + Side Text) | 信息密集的图文页 |
-
-**风格 B** → 先读 `references/swiss-layout-lock.md`,再读 `references/layouts-swiss.md`。
-
-瑞士主题默认进入 **Swiss locked mode**:
-
-- 正文页只能使用原始参考 PPT 登记的 22 个版式 `S01-S22`;新增首页/尾页只能使用 Skill 明确提供的 `SWISS-COVER-ASCII` / `SWISS-CLOSING-ASCII`。
-- 每个 `<section class="slide">` 必须写 `data-layout="Sxx"`。没有 `data-layout` 就视为未登记版式。
-- 不允许临时发明 `P23/P24`、`Swiss Image Split`、`Evidence Grid` 这类原始 22P 之外的正文结构,除非用户明确要求实验版式。
-- 顶部中文标题默认左对齐、处在左上内容轴。不要把小标题放左列、大标题放右列,造成视觉居中;只有原始 statement/split 版式允许强中心叙事。
-- SVG 只负责几何图形。不要在 SVG 里写文字标签,所有标签改用 HTML 网格/卡片/caption。
-- 地理/历史/城市路线/地点关系页使用 `S08 + Swiss Map Component`:先读 `references/swiss-map-component.md`,仍保留 `data-layout="S08"`。
-
-原始 22 个正文版式如下:
-
-| Layout | 用途 |
-|---|---|
-| S01 Index Cover | 原始索引封面 |
-| S02 Vertical Timeline + KPI | 演化对比 / 年代变迁 |
-| S03 Split Statement | 核心论点 / 左右分屏 |
-| S04 Six Cells | 6 项概念定义 |
-| S05 Three Layers | 三层架构 |
-| S06 KPI Tower | 4 项数据视觉化高度差 |
-| S07 H-Bar Chart | 5-10 项排名比较 |
-| S08 Duo Compare | Before/After 对照 |
-| S09 Dot Matrix Statement | 大引述 / statement |
-| S10 Split Closing | 收束页 |
-| S11 Horizontal Timeline | 4-7 步流程 |
-| S12 Manifesto + Ink Banner | 阶段性结论 |
-| S13 Three Forces | 3 个对等概念深化 |
-| S14 Loop Form | 自学闭环 / 自动化 |
-| S15 Matrix + Hero Stat | 8-12 项矩阵 + 总数据 |
-| S16 Multi-card Brief | 6 项快讯小卡 |
-| S17 System Diagram | 三层架构 / 生态地图 |
-| S18 Why Now | 三论点 + 数据支撑 |
-| S19 Four Cards | 4 项等权特性 |
-| S20 Stacked KPI Ledger | 纵向账单数据 |
-| S21 Tech Spec Sheet | 产品规格 / benchmark |
-| S22 Image Hero | 21:9 顶图 + 标题块 + 三列 KPI |
-
-**登记扩展**:`S08 + Swiss Map Component` 用于地点、人物住所、路线、城市关系。它不是新 layout,而是 S08 右侧插槽的 MapLibre 地图组件;必须按 `references/swiss-map-component.md` 的点位、连线、卡片和右上角缩放/拖动控制实现。
-
-选对应 layout,粘过去,改文案和图片路径即可。**务必先完成 3.0 预检**。
-
-**风格 B 版式多样性硬规则**:
-- 7-8 页 deck 至少使用 **6 个不同 S 编号版式**;10 页以上至少使用 8 个不同版式。
-- 如果用户说"测试模板 / 看看效果 / 多一点版式",必须覆盖:一个封面、一个收尾、至少 1 个对比或时间线(S08/S11/S02)、至少 1 个结构图(S14/S17/S15)、至少 1 个图片版式(S22 或 S15/S16 图片格改造)。
-- 不允许连续 3 页使用同一种主体结构,例如连续三页 `head + grid + card`。
-- 图片页不能偷懒发明新结构。2-3 张图时,用 S15/S16 的原始网格骨架改造成图片格;单张大图用 S22。
-- 开写 HTML 前先列一张 `页码 → data-layout → 选用理由 → 图片槽位` 草稿;交付前运行 `node <SKILL_ROOT>/scripts/validate-swiss-deck.mjs index.html`。
-
-#### 3.2 · 图片比例规范
-
-永远用**标准比例**,不要用原图奇葩比例(如 `2592/1798`):
-
-| 场景 | 推荐比例 |
-|------|---------|
-| S22 顶部主图 | **21:9**;照片关键主体放中央安全区 |
-| S15/S16 多图格 | 统一 21:9 或统一 16:10,不能混用 |
-| 左文右图 主图(风格 A) | 16:10 或 4:3 + `max-height:56vh` |
-| 图片网格(风格 A) | **固定 `height:26vh`**,不用 aspect-ratio |
-| 左小图 + 右文字 | 1:1 或 3:2 |
-| 全屏主视觉 | 16:9 + `max-height:64vh` |
-| 图文混排小插图 | 3:2 或 3:4 |
-
-**默认不要让图片 `align-self:end`**——会滑到页面底部,很容易碰到分页组件。用 grid 容器 + `align-items:start`(template 已预设)让图片贴顶即可;如果确实需要图文底对齐,必须先控制图片高度,再使用模板已有安全区类 `.nav-safe-bottom` / `.nav-safe-bottom-tight`,不要让最低处碰到分页组件。
-
-**风格 B 瑞士风额外规则**:
-- 单张大图用 S22;多图测试用 S15/S16 的原始卡片网格改造,不要用未登记的 P23/P24
-- 生成图片前先写 `data-image-slot`:例如 `s22-hero-21x9` / `s15-grid-21x9` / `s16-brief-21x9`
-- S22 配图默认生成 21:9,提示词必须包含 `subject centered in the safe middle area`;照片容器用 `object-position:center 35%`,不要用 `top center`
-- 图片容器必须直角、无阴影、无圆角;默认背景用白色 `var(--paper)`,不要用灰底包白底信息图
-- 白底 GPT 信息图/流程图/UI 图默认不要加外框描边,不要随手套 `.swiss-keyline`;需要强调时只用 `.swiss-lined` 的顶部 accent 线
-- UI/信息图如果是用户原始截图或文字密集图,才用 `.fit-contain`;如果已按 S15/S16 槽位重生成,必须用 `.frame-img.r-21x9` / `.frame-img.r-16x10` 铺满容器,不要固定 `height:18vh` 后把图缩小
-- 多图同组必须统一图片槽位、比例和高度,不能混用
-- GPT-M 2.0 生成图使用 `image-prompts.md` 的"风格 B:瑞士国际主义配图规则"
-- 任何图片、caption、timeline label、footnote 的最低处都不能进入底部分页区域;需要贴底时用 `.nav-safe-bottom` / `.nav-safe-bottom-tight`,不要手写 `bottom:2vh`
-
-#### 3.2.1 · 中文大标题字号分档(风格 B 必做)
-
-中文方块字视觉面积大,不能直接套英文 hero 的 6.8-7vw。写中文大标题前先分档:
-
-| 标题形态 | 推荐字号 |
-|---|---|
-| 1 行,≤ 8 个中文字符 | `min(6.4vw,11.2vh)` |
-| 2 行,每行≤ 8 个中文字符 | `min(5.8vw,10.2vh)` |
-| 2 行,任一行 9-12 个中文字符 | `min(5.2vw,9.2vh)` |
-| 3 行或更长 | 优先改写标题;不得已用 `min(4.6vw,8.2vh)` |
-
-如果标题挤占了图片或正文区域,先压缩标题文案,再降字号;不要靠把下方内容推到底来硬塞。
-
-组件细节(字体、颜色、网格、图标、callout、stat-card 等)在 `references/components.md`。
-
-### Step 4 · 对照检查清单自检
-
-生成完一定要打开 `references/checklist.md`，逐项对照。里面总结了**真实迭代过程中踩过的所有坑**，P0 级别的问题（emoji、图片撑破、标题换行、字体分工）必须全部通过。
-
-#### 4.0 · 不只看代码:必须打开网页做视觉核对
-
-代码只能证明类名和结构存在,不能证明版式舒服。生成后必须打开网页逐页看:
-
-1. 同时打开当前模板（`assets/template.html` 或 `assets/template-swiss.html`）、正在生成的 deck、刚跑出来的测试页对照看。
-2. 截图前等入场动效稳定(约 1-2 秒),不要把动画中间态当成版式问题。
-3. 先看视觉:大标题字重、标题与内容间距、图片是否与正文对齐、图片/说明是否碰到底部分页组件。
-4. 再看代码:确认该页选用的版式与内容形状匹配,没有把数据专用版式拿来讲概念,也没有把可选组件堆成装饰。
-5. 对照原始参考模板时,以实际页面用法为准,不要只看 CSS helper 定义;原始页面的大字实际多为 200/300,不要被 raw CSS 里的 700/800/900 带偏。
-6. 如果页面别扭,先判断是版式选错、必选组件缺失、可选组件滥用,还是间距/安全区问题;不要直接靠加 margin 硬救。
-
-#### 风格 A · 电子杂志风必查
-
-1. **大标题必须是衬线字体**——如果显示成非衬线,99% 是 Step 3.0 预检没做,`h-hero` 类在 template.html 里缺失
-2. **图片网格里只用 `height:Nvh`,不用 `aspect-ratio`**(会撑破)
-3. **图片不能堆到页面底部**——不要用 `align-self:end`,用 grid + `align-items:start`(见 Step 3.2)
-4. **图片只能用标准比例**(16:10 / 4:3 / 3:2 / 1:1 / 16:9),不要复制原图的奇葩比例
-5. **中文大标题 ≤ 5 字且 `nowrap`**(避免 1 字 1 行)
-6. **用 Lucide,不用 emoji**
-7. **标题用衬线,正文用非衬线,元数据用等宽**
-
-#### 风格 B · 瑞士国际主义必查
-
-1. **全程无衬线**——任何衬线字体出现都是错的(检查 `font-family` 没用 `--serif` 类变量)
-2. **只有一个 accent 色**——一份 deck 不能同时出现 IKB 蓝 + 柠檬黄 + 安全橙等多个高亮色
-3. **不允许渐变 / 阴影 / 圆角**——所有色块直角纯色,任何 `box-shadow` / `linear-gradient` / `border-radius` > 0 都要砍掉(rule 横线除外)
-4. **极致字号对比**——主标题与正文比例 ≥ 8:1
-5. **大字号必须双约束限高**——`font-size:min(Xvw, Yvh)`,只用 vw 在标准 16:9 屏会溢出(吸取 P15/P20/P22 教训)
-6. **大字字重 200**(ExtraLight)——字号越大越细,瑞士风灵魂;**禁止** 600/700/800 大字
-7. **卡片填充类型互斥**——`card-ink` / `card-accent` / `card-fill` / `card-outlined` 四类**不能混用**(禁止"蓝底+蓝描边"、"灰底+描边"等)
-8. **多卡并列时统一样式**——3-12 张卡用同一类(优先 `card-fill` 灰底);只突出一项时单独换 `card-accent`,且**只允许一张**
-9. **直角到底**——任何 `border-radius` 都不允许;装饰用 8×8 直角小方块,**不要** 9px 圆形点
-10. **图标用 lucide,不自己画 SVG**——`<i data-lucide="name"></i>` + `lucide.createIcons()`,选棱角风格(避免圆胖)
-11. **时间线对齐**——axis 列固定 12px + dot 绝对定位,**不要**用 grid `justify-self`(会与虚线错位)
-12. **章节级标题与内容间距 ≥ 9vh**——避免拥挤(吸取 P15/P16 教训)
-13. **每页一个语义化动效 recipe**——不是统一 fade-up,数字 scale 弹入、bar scaleY 拉起、SVG stroke 描线、节点序列点亮等;**禁止**所有页用同一个 generic 配方
-14. **playSlide 入口 reveal 容器**——`[data-anim]` 容器先强制 opacity:1,recipe 内再用 motion `{opacity:[0,1]}` 覆盖,否则有些页会"看不见"
-15. **ESC 索引页可见性**——cloned slide 必须有 CSS override 让 `[data-anim]` 在缩略图里 opacity:1
-16. **Helvetica/Inter 兜底中文字体**——Windows 用户没有"苹方",必须 fallback 到 `"Microsoft YaHei UI", "Noto Sans SC"`
-17. **字体粗细体例**:大字 200 / 正文 300 / `t-cat` SemiBold 600 / `t-meta` mono uppercase
-18. **保留低功耗快捷键**——右下角必须提示 `B 静态`;按 `B` 切换 `body.low-power`,停止 WebGL/ASCII canvas RAF 和 Motion 入场动画
-19. **装饰元素严格在 grid 内**——bars 矩阵、点阵、ring-mat 不能贴边或溢出页面
-20. **底部内容预留 nav 空间**——nav 在 ~97vh,内容收尾不要过 93vh(吸取 P22 KPI 大字溢底教训)
-21. **图片容器直角无阴影**——`.frame-img` 不加 `border-radius` / `box-shadow`;边界只用 hairline
-22. **S15/S16/S22 图片同组一致**——同一组图片统一比例、高度、边距、线条粗细;信息图/UI 图加 `.fit-contain`
-23. **组件角色要正确**——S15/S16 图片格需要 caption 信息锚点;S22 的 KPI/说明是必选;数据专用版式必须有真实数据,不能靠文案硬填
-24. **通用/非通用版式要分清**——S03/S08/S11/S19 较通用;S06/S07/S20/S21/S22 是数据/案例专用;S14/S15/S17 是结构专用
-
-### Step 5 · 本地预览
-
-直接在浏览器打开 `index.html` 就行。macOS 下：
-
-```bash
-open "项目/XXX/ppt/index.html"
-```
-
-不需要本地服务器。图片走相对路径 `images/xxx.png`。
-
-### Step 6 · 迭代
-
-根据用户反馈修改——模板的 CSS 已经高度参数化，90% 的调整都是改 inline style（字号 `font-size:Xvw` / 高度 `height:Yvh` / 间距 `gap:Zvh`）。
 
 ---
 
@@ -513,98 +213,46 @@ open "项目/XXX/ppt/index.html"
 
 ```
 alanppt/
-├── SKILL.md                  ← 你正在读（已叠加 Alan 自定义层 + 四条路径决策表）
+├── SKILL.md                  ← 你正在读
+├── README.md / README.en.md  ← 速查
+├── LICENSE                   ← MIT
+├── CONTRIBUTING.md           ← 维护说明
 ├── assets/
-│   ├── template.html         ← 风格 A · 电子杂志风模板（种子文件）
-│   ├── template-swiss.html   ← 风格 B · 瑞士国际主义风模板（种子文件）
-│   ├── screenshot-backgrounds/ ← 截图美化内置背景(WebP):style-a 5 套 / style-b 4 套
-│   ├── motion.min.js         ← Motion One 本地副本（离线兜底,约 64KB,共用）
-│   └── mckinsey-pptx/        ← ★ C 路径资源（self-contained，复制到项目即用）
+│   ├── template-consulting.html  ← ★ HTML 路径模板（10 layout）
+│   └── mckinsey-pptx/            ← ★ PPTX 路径 self-contained 工作目录
 │       ├── image2-prompt-template.md  ← Image-2 整页视觉 Prompt 模板
 │       ├── decompose-prompt.md        ← 拆透明 PNG 的 Prompt
 │       ├── rebuild-prompt.md          ← 兜底：让模型直出 pptx 的 Prompt
-│       ├── make-deck.js               ← pptxgenjs 重建脚本（含咨询图表原语库）
+│       ├── make-deck.js               ← pptxgenjs 脚本（含咨询图表原语库）
 │       └── package.json               ← pptxgenjs + sharp 依赖声明
-├── scripts/
-│   └── validate-swiss-deck.mjs ← 风格 B 静态校验:登记版式、图片槽位、SVG 文本、标题对齐
 └── references/
-    ├── components.md         ← 组件手册（字体、色、网格、图标、callout、stat、pipeline、动效... 风格 A 适用）
-    ├── layouts.md            ← 风格 A · 10 种页面布局骨架（可直接粘贴,含动效标记）
-    ├── swiss-layout-lock.md  ← 风格 B · 原始 22P 版式锁,正文页必须按这里登记
-    ├── layouts-swiss.md      ← 风格 B · 原始 22P 骨架说明 + 少量明确标注的实验区
-    ├── swiss-map-component.md ← 风格 B · S08 地图扩展组件(MapLibre 点位/连线/卡片/控制)
-    ├── themes.md             ← 风格 A · 5 套主题色预设（只能选不能自定义）
-    ├── themes-swiss.md       ← 风格 B · 4 套瑞士风主题色预设（IKB / 柠檬黄 / 柠檬绿 / 安全橙）
-    ├── image-prompts.md      ← GPT-M 2.0 配图类型、比例和基础提示词（deck 内嵌素材用）
-    ├── screenshot-framing.md ← CleanShot X 式截图适配语义 + 内置背景资产映射
-    ├── cover-specs.md        ← D 路径 · 多平台封面规格 + Prompt 模板（21:9 / 1:1 / 3:4 / 16:9 / 9:16）
-    ├── mckinsey-pptx.md      ← ★ C 路径 · 完整工作流主文档（走 C 前必读）
-    ├── checklist-mckinsey.md ← ★ C 路径 · 自检清单（P0/P1/P2/P3）
-    └── checklist.md          ← 风格 A/B 质量检查清单（P0/P1/P2/P3 分级）
+    ├── layouts-consulting.md     ← ★ HTML · 10 种 layout 骨架（可粘贴）
+    ├── mckinsey-pptx.md          ← ★ PPTX · 完整工作流主文档
+    ├── cover-specs.md            ← ★ COVER · 多平台封面规格 + Prompt 模板
+    └── checklist-mckinsey.md     ← ★ PPTX · 自检清单（P0/P1/P2/P3）
 ```
 
 **加载顺序建议**：
-1. 先读完 `SKILL.md`(这个文件)了解整体
-2. Step 1 需求澄清**第一问**先确定产出形式：网页 deck（A/B）/ 可编辑 pptx（C）/ 单张封面（D）
-3. 走 D 路径时**直接读** `cover-specs.md`,选风格 → 选主题色（复用 `themes.md` / `themes-swiss.md`）→ 按 Prompt 模板生成,**跳过下面的 deck 流程**
-4. 走 C 路径时**直接读** `mckinsey-pptx.md`(工作流主文档),然后按需读 `assets/mckinsey-pptx/image2-prompt-template.md` / `decompose-prompt.md` / `make-deck.js`,交付前过 `checklist-mckinsey.md` 自检,**跳过下面的 A/B deck 流程**
-5. 走 A/B 路径时,第二问决定风格,然后:
-   - 风格 A:读 `themes.md` 帮用户选一套主题色
-   - 风格 B:读 `themes-swiss.md` 帮用户选一套主题色
-6. **动手前 Read 对应模板的 `<style>` 块**——这是类名的唯一来源,缺类会导致整页样式崩
-   - 风格 A → `assets/template.html`
-   - 风格 B → `assets/template-swiss.html`
-7. 读对应的 layouts 文件挑布局:
-   - 风格 A → `layouts.md`(顶部有 Pre-flight 类名清单、主题节奏规划、动效 recipe 决策树)
-   - 风格 B → **先读 `swiss-layout-lock.md`**,再读 `layouts-swiss.md`;正文页必须从 S01-S22 选择,每页写 `data-layout`
-8. 如果风格 B 需要地点、路线、人物住所或城市关系地图,读 `swiss-map-component.md`
-9. 如果在 Codex 中生成 deck 内嵌配图,读 `image-prompts.md` 挑图片类型、比例和基础提示词;如果是用户原始截图,先读 `screenshot-framing.md`,优先使用 `assets/screenshot-backgrounds/` 的内置背景资产
-10. 细节调整时读 `components.md` 查组件(含 Motion 动效系统章节,主要服务风格 A;风格 B 的组件细节在 `layouts-swiss.md` 附录)
-11. 生成后先运行 `node scripts/validate-swiss-deck.mjs path/to/index.html`,再读 `checklist.md` 自检
 
-**动效相关**:模板已把 Motion One 的加载和 recipe 逻辑内嵌到底部 module script。你不需要改 JS,只需要按 `layouts.md` / `layouts-swiss.md` 的骨架在 HTML 里加 `data-anim` / `data-animate` 即可。离线演示靠 `assets/motion.min.js`,断网时自动降级为"无动画但内容可读"。风格 B 模板必须保留 `B` 键低功耗模式:切换后停止 WebGL/ASCII canvas RAF,取消正在运行的 Web Animations,并把当前页内容直接 reveal 到静态最终态。
+1. 先读完 `SKILL.md`（这个文件）了解整体
+2. Step 1 需求澄清**第一问**：先确定产出形式（HTML / PPTX / COVER）
+3. 走 **HTML** 时：读 `layouts-consulting.md`（顶部有 Pre-flight 类名清单），动手前先 Read `assets/template-consulting.html` 的 `<style>` 块
+4. 走 **PPTX** 时：读 `mckinsey-pptx.md`，按需读 `assets/mckinsey-pptx/` 里的对应 prompt 模板 / 脚本，交付前过 `checklist-mckinsey.md`
+5. 走 **COVER** 时：直接读 `cover-specs.md` → 按 Prompt 模板生成
+
+---
 
 ## 核心设计原则（哲学）
 
-### 风格 A · 电子杂志风（5 轮迭代总结）
+> 违反其中任何一条，画面瞬间从咨询风掉到 PowerPoint。
 
-> 违反其中任何一条，杂志感都会垮。
-
-1. **克制优于炫技** — WebGL 背景只在 hero 页透出，普通页几乎看不见
-2. **结构优于装饰** — 不用阴影、不用浮动卡片、不用 padding box，一切信息靠**大字号 + 字体对比 + 网格留白**
-3. **内容层级由字号和字体共同定义** — 最大衬线 = 主标题，中衬线 = 副标，大非衬线 = lead，小非衬线 = body，等宽 = 元数据
-4. **图片是第一公民** — 图片只裁底部，保证顶部和左右完整；网格用 `height:Nvh` 固定，不要用 `aspect-ratio` 撑
-5. **节奏靠 hero 页** — hero 和 non-hero 交替，才不累眼睛
-6. **术语统一** — Skills 就是 Skills，不要中英混合翻译
-
-### 风格 B · 瑞士国际主义风
-
-> 违反其中任何一条，画面瞬间从瑞士掉到 PowerPoint。
-
-1. **单一锚点色** — 一份 deck 只用一个 accent，不允许多色高亮拼贴
-2. **极致字号对比** — 主标题与正文比例 ≥ 8:1,KPI 必须是"Data Hero"(屏幕宽度的 18-22%)
-3. **无衬线只此一家** — Inter / Helvetica / Noto Sans SC,任何衬线都是错的
-4. **直角纯色** — 不允许渐变 / 阴影 / 圆角(rule 横线除外)
-5. **网格至上** — 所有元素吸附到 12-col grid,左对齐 + 大幅留白做非对称美学
-6. **Hairline 是手术刀** — 1px 的极细分割线就够,不要加粗、不要加阴影
-7. **点阵装饰只在 hero 页透出** — 正文页保持纯净底色
-
-## 参考作品
-
-本 skill 的视觉风格锚定在以下经典：
-
-**风格 A · 电子杂志风**:
-- *Monocle* 杂志的版式
-- YC 总裁 Garry Tan "Thin Harness, Fat Skills" 那篇博客的 demo
-
-**风格 B · 瑞士国际主义风**:
-- Massimo Vignelli 的 NYC Subway / Unimark 系统
-- *Helvetica Forever* 的字体设计语言
-- Josef Müller-Brockmann 的网格系统经典著作
-- 当代设计:Acne Studios / Off-White / IKEA / Beck Design
-
-**风格 C · 麦肯锡咨询风**:
-- McKinsey / BCG / Bain 标准客户汇报 deck
-- 结论先行 / 网格严谨 / 信息密度高 / 配色克制的方法论
-
-可以把它们当做风格锚点。
+1. **单一锚点色** — 一份 deck 只用一个 accent（红色），不允许多色高亮拼贴
+2. **极致字号对比** — 主标题（48px）与正文（16px）比例 ≥ 3:1；KPI 大数字（72px）与 label（24px）比例 3:1
+3. **无衬线只此一家** — Inter / Helvetica / 苹方；任何衬线都是错的
+4. **直角纯色** — 不允许渐变 / 阴影 / 圆角 > 4px
+5. **网格至上** — 所有元素吸附到 12-col grid，左对齐 + 大幅留白做非对称美学
+6. **Hairline 是手术刀** — 1px 的极细分割线就够，不要加粗、不要加阴影
+7. **结论先行** — 每页大标题都是结论，副标补论据，不要写"关于 XX 的分析"
+8. **红色克制** — 红色一份 deck ≤ 3 次，每次都对应"最该看的那一项"
+9. **配图不用 stock** — 真实素材或自己生成，stock photo 一秒掉档次
+10. **入场动效极简** — opacity + 微 translateY + 数字 scaleIn；不用流体 / 视差 / sequence

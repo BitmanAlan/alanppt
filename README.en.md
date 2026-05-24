@@ -1,49 +1,53 @@
-# alanppt · Alan's PPT skill
+# alanppt · Professional consulting PPT skill
 
-> Alan Lee's personal PPT generation skill covering 4 output paths. See [`SKILL.md`](./SKILL.md) for the full workflow; this README is a quick reference.
+> Alan Lee's personal PPT generation skill. Single visual identity (McKinsey/BCG consulting aesthetic), three output formats. See [`SKILL.md`](./SKILL.md) for the full workflow; this README is a quick reference.
 
-## Four output paths
+## Design identity
 
-| Path | Output | When |
+**Professional consulting style** · Conclusion-first · Grid-driven · Restrained palette · High information density · No decoration
+
+Inspiration: McKinsey / BCG / Bain client deck aesthetic.
+
+**Banned**: WebGL fluid backgrounds, dot matrix decoration, serif magazine style, Monocle-style, Swiss colored blocks, stock photos.
+
+## Three output formats
+
+| Format | Output | When |
 |---|---|---|
-| **A · Magazine web deck** | Single HTML file | Industry observation / humanities / business launch / talk |
-| **B · Swiss-style web deck** | Single HTML file | Data / tech / AI product / annual report |
-| **C · McKinsey editable pptx** | .pptx | Client consulting / exec presentation / needs PowerPoint edit |
-| **D · Multi-platform cover** | Single image (21:9 / 1:1 / 3:4 / 16:9 / 9:16) | WeChat header / share card / Xiaohongshu / video platform / vertical |
+| **HTML web deck** | Single HTML file (horizontal swipe) | Internal sharing / send link to client for preview / Demo Day |
+| **Editable pptx** | .pptx (PowerPoint second-edit) | Client consulting deliverable / exec presentation / handover |
+| **Multi-platform cover** | Single image (21:9 / 1:1 / 3:4 / 16:9 / 9:16) | WeChat header / share card / Xiaohongshu / video platform / vertical |
+
+All three formats **share one visual system**: same McKinsey palette, same typography, same conclusion-first principle.
 
 ## Trigger keywords
 
 - "make a deck" / "create slides" / "build a presentation"
-- "magazine style" / "Monocle look"
-- "Swiss style" / "Helvetica" / "International Typographic"
-- "McKinsey deck" / "BCG style" / "editable pptx" / "client deck"
+- "McKinsey deck" / "BCG style" / "consulting deck"
+- "editable pptx" / "client deck" / "exec presentation"
+- "web deck" / "horizontal swipe deck"
 - "make a cover" / "WeChat header" / "Xiaohongshu cover"
 
 ## Repo layout
 
 ```
 alanppt/
-├── SKILL.md                  ← main doc (4-path workflow + Alan layer)
-├── README.md / README.en.md
+├── SKILL.md                  ← main doc
+├── README.md / README.en.md  ← quick ref
 ├── LICENSE                   ← MIT
 ├── assets/
-│   ├── template.html         ← A · magazine template
-│   ├── template-swiss.html   ← B · Swiss template
-│   ├── motion.min.js         ← Motion One offline copy
-│   ├── screenshot-backgrounds/ ← screenshot framing backgrounds
-│   └── mckinsey-pptx/        ← C · self-contained pptx generator
-├── scripts/
-│   └── validate-swiss-deck.mjs ← B path static validator
+│   ├── template-consulting.html  ← web deck template (10 layouts)
+│   └── mckinsey-pptx/            ← editable pptx working dir
+│       ├── image2-prompt-template.md
+│       ├── decompose-prompt.md
+│       ├── rebuild-prompt.md
+│       ├── make-deck.js          ← pptxgenjs script (with consulting chart primitive library)
+│       └── package.json
 └── references/
-    ├── layouts.md / layouts-swiss.md
-    ├── swiss-layout-lock.md / swiss-map-component.md
-    ├── themes.md / themes-swiss.md
-    ├── components.md
-    ├── image-prompts.md / screenshot-framing.md
-    ├── cover-specs.md            ← D path specs
-    ├── mckinsey-pptx.md          ← C path workflow
-    ├── checklist.md              ← A/B QA
-    └── checklist-mckinsey.md     ← C QA
+    ├── layouts-consulting.md     ← 10 layout patterns for web deck
+    ├── mckinsey-pptx.md          ← pptx workflow
+    ├── cover-specs.md            ← cover specs + prompts
+    └── checklist-mckinsey.md     ← QA checklist
 ```
 
 ## Deployment
@@ -57,16 +61,17 @@ ls -la ~/.claude/skills/alanppt
 
 Edit in `~/dev/alanppt/`, commit with git — no copy step needed.
 
-## Design principles
+## Core design principles
 
-- **Restraint over flash**: animated backgrounds only show through on hero slides
-- **Structure over decoration**: hierarchy comes from type scale + grid space, not shadows or floating cards
-- **Image is a first-class citizen**: fix ratio + height, don't let images break the layout
-- **One deck, one path**: A/B/C/D never mix; if you need two outputs, make two decks
-- **Locked color palettes**: every path uses presets, no arbitrary hex
-- **No stock business photos**: real or generated, never "handshake / team meeting" stock — instant downgrade
-- **No marketing voice**: avoid "revolutionary / disruptive / unleash"; use concrete verbs and numbers
+1. **Conclusion first**: titles state the conclusion ("Action releases 18-24% EBITDA"), not the topic ("EBITDA analysis")
+2. **Restrained palette**: navy + 1 red accent + green/amber for status; red appears ≤ 3 times per deck
+3. **Grid-driven**: 12-column grid + 1px hairlines + generous whitespace; no rounded corners > 4px, no shadows, no gradients
+4. **Sans-serif only**: Inter / Helvetica / PingFang / YaHei; any serif is wrong
+5. **High information density**: 3-4 points per page, not "one sentence per page"; but never 8+ points
+6. **One deck, one format**: HTML / pptx / cover never mix; if you need two outputs, make two decks
+7. **No marketing voice**: avoid "revolutionary / disruptive / unleash"; use concrete verbs and numbers
+8. **No stock business photos**: real or generated, never "handshake / team meeting" stock — instant downgrade
 
 ## License
 
-MIT — see [LICENSE](./LICENSE) for full copyright and third-party acknowledgments.
+MIT — see [LICENSE](./LICENSE)

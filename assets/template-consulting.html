@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[必填] 替换为 Deck 标题</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* =============================================================
+     alanppt · 风格 · 专业咨询风（McKinsey/BCG aesthetic）
+     设计原则：结论先行 · 网格至上 · 配色克制 · 信息密度高
+     字体：无衬线 only（Inter / Helvetica / 苹方 / Noto Sans SC）
+     ============================================================= */
+
+  :root {
+    /* ---------- 配色（McKinsey 标准调色板，不允许自定义 hex） ---------- */
+    --paper:        #ffffff;
+    --paper-tint:   #f4f6f8;     /* 浅灰背景块（callout、panel） */
+    --paper-rgb:    255,255,255;
+
+    --ink:          #17212B;     /* 正文 / 标题 */
+    --ink-strong:   #0a0e13;     /* 极少数强调 */
+    --muted:        #5C6773;     /* 次要文字 / 说明 */
+    --line:         #D9DEE5;     /* 1px hairline 分隔线 */
+    --line-strong:  #B8C2CC;     /* 加重 hairline */
+
+    --navy:         #17365D;     /* 主蓝（KPI 数字 / 主色块） */
+    --navy-2:       #2F5F8F;     /* 次蓝 */
+    --red:          #C62828;     /* 强调红（一份 deck ≤ 3 次） */
+    --red-tint:     #FBE9E9;     /* 红色浅底 */
+    --amber:        #D79B35;     /* 黄灯状态 / 中等数据 */
+    --amber-tint:   #FBF1E0;
+    --green:        #3A7D5A;     /* 绿灯状态 / 正向数据 */
+    --green-tint:   #E8F0EB;
+
+    --white:        #FFFFFF;     /* 反色文字 */
+
+    /* ---------- 字体（Inter + 苹方 / 雅黑 兜底） ---------- */
+    --sans:  "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei UI", "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    /* ---------- 字号层级（vw 自适应 16:9 屏） ---------- */
+    --t-meta:    min(0.78vw, 11.5px);   /* 页码 / section label / mono caps */
+    --t-cat:     min(0.84vw, 13px);     /* SemiBold caps 章节小标 */
+    --t-foot:    min(0.84vw, 13px);     /* 底部 nav hint / footnote */
+    --t-body:    min(1.05vw, 16px);     /* 正文 */
+    --t-lead:    min(1.25vw, 20px);     /* lead 段落 */
+    --t-md:      min(1.55vw, 24px);     /* 子标题 / KPI label */
+    --t-xl:      min(2.2vw, 36px);      /* 章节标题 */
+    --t-hero:    min(3.1vw, 48px);      /* 结论标题 */
+    --t-statement: min(5.2vw, 84px);    /* 大引用 / manifesto */
+    --t-num:     min(4.6vw, 72px);      /* KPI 大数字 */
+    --t-num-mega: min(8vw, 128px);      /* Hero KPI */
+
+    /* ---------- spacing token（8px 基线，vh 自适应） ---------- */
+    --sp-1:   0.5vh;
+    --sp-2:   1vh;
+    --sp-3:   1.5vh;
+    --sp-4:   2vh;
+    --sp-5:   3vh;
+    --sp-6:   4vh;
+    --sp-7:   6vh;
+    --sp-8:   8vh;
+    --sp-9:   12vh;
+    --sp-10:  16vh;
+
+    /* ---------- 全局动效缓动 ---------- */
+    --ease:  cubic-bezier(0.2, 0.8, 0.2, 1);
+    --d-fast: 200ms;
+    --d-base: 360ms;
+    --d-slow: 600ms;
+  }
+
+  /* =============================================================
+     reset + 基座
+     ============================================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: var(--sans);
+    font-size: var(--t-body);
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+    font-feature-settings: "ss01", "cv11", "tnum";  /* Inter SemiBold caps + tabular-nums */
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+
+  /* Windows 雅黑 ExtraLight 兜底（大字 weight 调整） */
+  body.is-win .h-hero, body.is-win .h-statement { font-weight: 400; }
+
+  /* =============================================================
+     deck 容器 + 翻页
+     ============================================================= */
+  #deck { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: grid; grid-template-rows: auto 1fr auto;
+    padding: 4.5vh 5.5vw 3vh;
+    background: var(--paper);
+    opacity: 0; visibility: hidden;
+    transition: opacity var(--d-base) var(--ease);
+  }
+  .slide.active { opacity: 1; visibility: visible; }
+  .slide.dark { background: var(--ink); color: var(--paper); }
+  .slide.dark .muted, .slide.dark .t-meta, .slide.dark .t-cat { color: rgba(255,255,255,0.62); }
+  .slide.dark .hairline, .slide.dark .top-rule { background: rgba(255,255,255,0.18); }
+
+  /* =============================================================
+     页头 / 页脚（每页固定的元数据带）
+     ============================================================= */
+  .slide-head {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--sp-5);
+    padding-bottom: var(--sp-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .slide-head .page-no {
+    font-family: var(--mono);
+    font-size: var(--t-cat);
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+  }
+  .slide-head .section-label {
+    font-family: var(--sans);
+    font-size: var(--t-meta);
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    text-align: right;
+  }
+  .slide-head .deck-meta {
+    font-family: var(--mono);
+    font-size: var(--t-meta);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .slide-foot {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: end;
+    gap: var(--sp-5);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: var(--t-foot);
+  }
+  .slide-foot .left,  .slide-foot .right { font-family: var(--mono); font-size: var(--t-meta); letter-spacing: 0.06em; }
+  .slide-foot .center { text-align: center; }
+
+  /* =============================================================
+     字号 helper
+     ============================================================= */
+  .h-hero       { font-size: var(--t-hero);      font-weight: 700; line-height: 1.18; letter-spacing: -0.01em; color: var(--ink); }
+  .h-statement  { font-size: var(--t-statement); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; color: var(--ink); }
+  .h-xl         { font-size: var(--t-xl);        font-weight: 700; line-height: 1.24; color: var(--ink); }
+  .h-md         { font-size: var(--t-md);        font-weight: 600; line-height: 1.32; color: var(--ink); }
+  .lead         { font-size: var(--t-lead);      font-weight: 400; line-height: 1.6;  color: var(--muted); }
+  .body         { font-size: var(--t-body);      font-weight: 400; line-height: 1.6;  color: var(--ink); }
+  .muted        { color: var(--muted); }
+  .strong       { color: var(--ink-strong); font-weight: 700; }
+  .accent       { color: var(--red); }
+  .navy         { color: var(--navy); }
+
+  .t-cat        { font-size: var(--t-cat);  font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink); }
+  .t-meta       { font-family: var(--mono); font-size: var(--t-meta); letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; }
+  .t-foot       { font-size: var(--t-foot); color: var(--muted); }
+  .mono         { font-family: var(--mono); font-feature-settings: "tnum"; }
+
+  .num-mega     { font-size: var(--t-num-mega); font-weight: 700; line-height: 1; font-family: var(--sans); font-feature-settings: "tnum"; letter-spacing: -0.02em; }
+  .num          { font-size: var(--t-num);      font-weight: 700; line-height: 1; font-family: var(--sans); font-feature-settings: "tnum"; letter-spacing: -0.015em; }
+
+  /* =============================================================
+     hairline + 标题钉（红色 vertical accent）
+     ============================================================= */
+  .hairline      { height: 1px; background: var(--line); width: 100%; }
+  .hairline-thick{ height: 1px; background: var(--line-strong); width: 100%; }
+  .top-rule      { height: 3px; width: 100%; background: var(--navy); }
+  .top-rule.red  { background: var(--red); }
+  .top-rule.green{ background: var(--green); }
+  .top-rule.amber{ background: var(--amber); }
+
+  .title-pin     { display: inline-block; width: 3px; height: 1em; background: var(--red); margin-right: 0.6em; vertical-align: -0.08em; }
+
+  /* =============================================================
+     grid 系统
+     ============================================================= */
+  .grid           { display: grid; gap: var(--sp-5); align-content: start; }
+  .grid-12        { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--sp-5); }
+  .grid-3         { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
+  .grid-4         { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+  .grid-2         { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-6); }
+  .grid-2-1       { display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-6); }
+  .grid-1-2       { display: grid; grid-template-columns: 1fr 2fr; gap: var(--sp-6); }
+  .col-span-2     { grid-column: span 2; }
+  .col-span-3     { grid-column: span 3; }
+  .col-span-4     { grid-column: span 4; }
+  .col-span-5     { grid-column: span 5; }
+  .col-span-6     { grid-column: span 6; }
+  .col-span-7     { grid-column: span 7; }
+  .col-span-8     { grid-column: span 8; }
+  .col-span-9     { grid-column: span 9; }
+  .col-span-12    { grid-column: span 12; }
+
+  /* =============================================================
+     KPI tile（咨询风经典：顶部彩色细条 + 大数字 + label + note）
+     ============================================================= */
+  .kpi-tile {
+    border: 1px solid var(--line);
+    padding: var(--sp-5) var(--sp-5) var(--sp-5);
+    background: var(--paper);
+    position: relative;
+    display: grid; gap: var(--sp-2);
+  }
+  .kpi-tile::before {
+    content: "";
+    position: absolute; inset: 0 0 auto 0;
+    height: 3px; background: var(--navy);
+  }
+  .kpi-tile.kpi-red::before    { background: var(--red); }
+  .kpi-tile.kpi-green::before  { background: var(--green); }
+  .kpi-tile.kpi-amber::before  { background: var(--amber); }
+  .kpi-tile .kpi-num   { font-size: var(--t-num); font-weight: 700; line-height: 1; color: var(--navy); font-feature-settings: "tnum"; letter-spacing: -0.015em; }
+  .kpi-tile.kpi-red   .kpi-num { color: var(--red); }
+  .kpi-tile.kpi-green .kpi-num { color: var(--green); }
+  .kpi-tile.kpi-amber .kpi-num { color: var(--amber); }
+  .kpi-tile .kpi-label { font-size: var(--t-md); font-weight: 700; color: var(--ink); margin-top: var(--sp-2); }
+  .kpi-tile .kpi-note  { font-size: var(--t-body); color: var(--muted); line-height: 1.55; }
+
+  /* =============================================================
+     callout / panel（决策含义、管理启示）
+     ============================================================= */
+  .panel {
+    background: var(--paper-tint);
+    padding: var(--sp-5);
+    display: grid; gap: var(--sp-3);
+  }
+  .panel .panel-title { font-size: var(--t-md); font-weight: 700; color: var(--ink); }
+  .panel .panel-item  { font-size: var(--t-body); color: var(--ink); line-height: 1.55; padding-left: 1.2em; position: relative; }
+  .panel .panel-item::before { content: "—"; position: absolute; left: 0; color: var(--navy); font-weight: 600; }
+
+  .pull-quote {
+    border-left: 3px solid var(--red);
+    padding-left: var(--sp-5);
+    font-size: var(--t-xl); font-weight: 400; line-height: 1.4;
+    color: var(--ink);
+  }
+  .pull-quote .source { display: block; margin-top: var(--sp-3); font-size: var(--t-body); color: var(--muted); font-weight: 600; }
+
+  /* =============================================================
+     value waterfall（SVG 容器，bar 用 div + height 实现）
+     ============================================================= */
+  .waterfall {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    align-items: end; gap: var(--sp-4);
+    height: 30vh;
+    border-bottom: 1px solid var(--line);
+    padding: 0 var(--sp-4);
+  }
+  .waterfall .bar {
+    background: var(--navy);
+    position: relative;
+    transform-origin: bottom;
+  }
+  .waterfall .bar.bar-red    { background: var(--red); }
+  .waterfall .bar.bar-green  { background: var(--green); }
+  .waterfall .bar.bar-amber  { background: var(--amber); }
+  .waterfall .bar.bar-navy-2 { background: var(--navy-2); }
+  .waterfall .bar .bar-value {
+    position: absolute; left: 50%; top: -2.4em;
+    transform: translateX(-50%);
+    font-size: var(--t-md); font-weight: 700; color: var(--ink);
+    font-family: var(--sans); font-feature-settings: "tnum";
+  }
+  .waterfall-labels {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: var(--sp-4); padding: var(--sp-2) var(--sp-4) 0;
+  }
+  .waterfall-labels span {
+    font-size: var(--t-body); color: var(--muted); text-align: center;
+  }
+
+  /* =============================================================
+     benchmark horizontal bars
+     ============================================================= */
+  .h-bars { display: grid; gap: var(--sp-3); }
+  .h-bars .row { display: grid; grid-template-columns: 8em 1fr 3em; align-items: center; gap: var(--sp-3); font-size: var(--t-body); }
+  .h-bars .row .label   { color: var(--muted); }
+  .h-bars .row .track   { position: relative; height: 12px; background: var(--paper-tint); }
+  .h-bars .row .fill    { position: absolute; inset: 0 auto 0 0; background: var(--navy); transform-origin: left; }
+  .h-bars .row .fill.fill-red    { background: var(--red); }
+  .h-bars .row .fill.fill-green  { background: var(--green); }
+  .h-bars .row .fill.fill-amber  { background: var(--amber); }
+  .h-bars .row .value   { font-family: var(--sans); font-feature-settings: "tnum"; font-weight: 700; color: var(--ink); text-align: right; }
+
+  /* =============================================================
+     2x2 matrix
+     ============================================================= */
+  .matrix-2x2 {
+    position: relative;
+    display: grid; grid-template-columns: 3em 1fr; grid-template-rows: 1fr 3em;
+    height: 100%;
+  }
+  .matrix-2x2 .axis-y {
+    grid-row: 1; grid-column: 1;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--sp-4) 0; color: var(--muted); font-size: var(--t-body);
+  }
+  .matrix-2x2 .axis-x {
+    grid-row: 2; grid-column: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 var(--sp-4); color: var(--muted); font-size: var(--t-body);
+  }
+  .matrix-2x2 .axis-x-label, .matrix-2x2 .axis-y-label {
+    text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; font-size: var(--t-cat); color: var(--ink);
+  }
+  .matrix-2x2 .matrix-area {
+    grid-row: 1; grid-column: 2;
+    position: relative;
+    border: 1px solid var(--line);
+    background:
+      linear-gradient(to right,  transparent calc(50% - 0.5px), var(--line) calc(50% - 0.5px), var(--line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+      linear-gradient(to bottom, transparent calc(50% - 0.5px), var(--line) calc(50% - 0.5px), var(--line) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+  }
+  .matrix-2x2 .bubble {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid var(--navy);
+    background: rgba(23, 54, 93, 0.08);
+    display: grid; place-items: center;
+    text-align: center;
+    padding: var(--sp-2);
+    font-size: var(--t-body); font-weight: 600; color: var(--ink);
+    transform: translate(-50%, -50%);
+  }
+  .matrix-2x2 .bubble.bubble-red    { border-color: var(--red);   background: rgba(198,40,40,0.08); }
+  .matrix-2x2 .bubble.bubble-green  { border-color: var(--green); background: rgba(58,125,90,0.08); }
+  .matrix-2x2 .bubble.bubble-amber  { border-color: var(--amber); background: rgba(215,155,53,0.08); }
+
+  /* =============================================================
+     roadmap swimlanes
+     ============================================================= */
+  .roadmap {
+    display: grid; grid-template-rows: auto repeat(3, 1fr);
+    gap: var(--sp-4);
+  }
+  .roadmap-head {
+    display: grid; grid-template-columns: 8em repeat(4, 1fr);
+    gap: var(--sp-3);
+    border-bottom: 1px solid var(--line); padding-bottom: var(--sp-2);
+  }
+  .roadmap-head > div:first-child { color: transparent; }
+  .roadmap-head > div { font-size: var(--t-cat); font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; text-align: center; }
+  .roadmap-lane {
+    display: grid; grid-template-columns: 8em repeat(4, 1fr);
+    align-items: center; gap: var(--sp-3);
+    border-bottom: 1px solid var(--line); padding: var(--sp-3) 0;
+  }
+  .roadmap-lane .lane-label { font-size: var(--t-md); font-weight: 700; color: var(--ink); }
+  .roadmap-lane .lane-block { padding: var(--sp-3) var(--sp-4); color: var(--white); font-size: var(--t-body); font-weight: 600; line-height: 1.4; }
+  .roadmap-lane .lane-block.b-navy  { background: var(--navy); }
+  .roadmap-lane .lane-block.b-red   { background: var(--red); }
+  .roadmap-lane .lane-block.b-green { background: var(--green); }
+  .roadmap-lane .lane-block.b-amber { background: var(--amber); color: var(--ink); }
+
+  /* =============================================================
+     scorecard
+     ============================================================= */
+  .scorecard {
+    border: 1px solid var(--line);
+    display: grid; grid-template-rows: auto 1fr;
+  }
+  .scorecard .sc-head { padding: var(--sp-4) var(--sp-5); background: var(--paper-tint); font-size: var(--t-md); font-weight: 700; }
+  .scorecard .sc-row {
+    display: grid; grid-template-columns: 1fr auto auto;
+    align-items: center; gap: var(--sp-4);
+    padding: var(--sp-4) var(--sp-5);
+    border-top: 1px solid var(--line);
+    font-size: var(--t-body);
+  }
+  .scorecard .sc-row .sc-label { color: var(--ink); }
+  .scorecard .sc-row .sc-value { font-family: var(--sans); font-weight: 700; font-feature-settings: "tnum"; color: var(--ink); }
+  .scorecard .sc-row .sc-dot   { width: 14px; height: 14px; border-radius: 50%; }
+  .scorecard .sc-row .sc-dot.dot-green { background: var(--green); }
+  .scorecard .sc-row .sc-dot.dot-amber { background: var(--amber); }
+  .scorecard .sc-row .sc-dot.dot-red   { background: var(--red); }
+
+  /* =============================================================
+     diagnostic strip
+     ============================================================= */
+  .diag-strip {
+    display: grid; grid-template-columns: 6em 1fr; align-items: center; gap: var(--sp-4);
+    padding: var(--sp-4) var(--sp-5);
+    background: var(--paper-tint);
+  }
+  .diag-strip .diag-label { font-size: var(--t-cat); font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: 0.12em; }
+  .diag-strip .diag-track { position: relative; height: 32px; display: flex; align-items: center; }
+  .diag-strip .diag-line { position: absolute; left: 12px; right: 12px; top: 50%; height: 2px; background: var(--line-strong); }
+  .diag-strip .diag-nodes { position: relative; width: 100%; display: flex; justify-content: space-between; }
+  .diag-strip .diag-node {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--navy); border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--line-strong);
+    position: relative;
+  }
+  .diag-strip .diag-node.n-red   { background: var(--red); }
+  .diag-strip .diag-node.n-green { background: var(--green); }
+  .diag-strip .diag-node.n-amber { background: var(--amber); }
+  .diag-strip .diag-node .label  { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: var(--t-meta); font-family: var(--mono); color: var(--muted); }
+
+  /* =============================================================
+     ESC 索引 overlay
+     ============================================================= */
+  #overview {
+    position: fixed; inset: 0;
+    background: rgba(10, 14, 19, 0.96);
+    z-index: 100;
+    display: none; overflow: auto;
+    padding: 4vh 4vw;
+  }
+  #overview.show { display: block; }
+  #overview h3 { color: var(--paper); font-size: var(--t-md); font-weight: 600; margin-bottom: 3vh; letter-spacing: 0.1em; text-transform: uppercase; }
+  #overview .ov-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2vh 2vw; }
+  #overview .ov-card { background: var(--paper); aspect-ratio: 16/9; cursor: pointer; position: relative; overflow: hidden; transition: transform var(--d-fast) var(--ease); }
+  #overview .ov-card:hover { transform: translateY(-4px); }
+  #overview .ov-card .ov-thumb {
+    position: absolute; inset: 0;
+    transform: scale(0.25); transform-origin: top left;
+    width: 400%; height: 400%;
+    pointer-events: none;
+  }
+  #overview .ov-card .ov-num {
+    position: absolute; top: 8px; left: 12px;
+    font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--muted);
+    background: rgba(255,255,255,0.9); padding: 2px 6px; z-index: 2;
+  }
+
+  /* =============================================================
+     HUD（右下角导航提示）
+     ============================================================= */
+  #hud {
+    position: fixed; bottom: 1.6vh; right: 1.6vw;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); letter-spacing: 0.08em;
+    z-index: 50; user-select: none;
+    background: rgba(255,255,255,0.92); padding: 6px 12px;
+    border: 1px solid var(--line);
+  }
+  body.dark-bg #hud { background: rgba(10,14,19,0.92); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
+
+  /* =============================================================
+     入场动效（极简：opacity + 微 translateY）
+     ============================================================= */
+  [data-anim] { opacity: 0; transform: translateY(8px); transition: opacity var(--d-base) var(--ease), transform var(--d-base) var(--ease); }
+  .slide.active [data-anim] { opacity: 1; transform: translateY(0); }
+  .slide.active [data-anim][data-delay="1"] { transition-delay: 80ms; }
+  .slide.active [data-anim][data-delay="2"] { transition-delay: 160ms; }
+  .slide.active [data-anim][data-delay="3"] { transition-delay: 240ms; }
+  .slide.active [data-anim][data-delay="4"] { transition-delay: 320ms; }
+  .slide.active [data-anim][data-delay="5"] { transition-delay: 400ms; }
+  .slide.active [data-anim][data-delay="6"] { transition-delay: 480ms; }
+  .slide.active [data-anim][data-delay="7"] { transition-delay: 560ms; }
+
+  /* 数字 scale-in（KPI / 大数字独享） */
+  [data-anim-num] { opacity: 0; transform: scale(0.92); transition: opacity var(--d-slow) var(--ease), transform var(--d-slow) var(--ease); }
+  .slide.active [data-anim-num] { opacity: 1; transform: scale(1); }
+
+  /* bar grow-in */
+  [data-anim-bar] { transform: scaleY(0); transform-origin: bottom; transition: transform var(--d-slow) var(--ease); }
+  .slide.active [data-anim-bar] { transform: scaleY(1); }
+  [data-anim-hbar] { transform: scaleX(0); transform-origin: left; transition: transform var(--d-slow) var(--ease); }
+  .slide.active [data-anim-hbar] { transform: scaleX(1); }
+
+  /* 低功耗模式：禁用所有动效，直接显示 */
+  body.low-power [data-anim],
+  body.low-power [data-anim-num],
+  body.low-power [data-anim-bar],
+  body.low-power [data-anim-hbar] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  body.low-power .slide { transition: none !important; }
+
+  /* =============================================================
+     打印（每张 slide 一页 A4 横向）
+     ============================================================= */
+  @media print {
+    html, body { overflow: visible; height: auto; }
+    #deck { height: auto; }
+    .slide { position: relative; inset: auto; opacity: 1 !important; visibility: visible !important; page-break-after: always; height: 100vh; }
+    #hud, #overview { display: none !important; }
+    [data-anim], [data-anim-num], [data-anim-bar], [data-anim-hbar] { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- ============================================================
+       SLIDE 1 · 开场封面（COVER）
+       ============================================================ -->
+  <section class="slide" data-layout="cover">
+    <div class="slide-head">
+      <div class="page-no">01 / 03</div>
+      <div class="deck-meta">[替换：客户名 / 项目名]</div>
+      <div class="section-label">EXECUTIVE SUMMARY</div>
+    </div>
+
+    <div class="grid" style="grid-template-rows: 1fr auto; padding: var(--sp-7) 0;">
+      <div class="grid" style="align-content: end; gap: var(--sp-5);">
+        <div class="t-cat" data-anim data-delay="1">战略诊断 · 价值释放</div>
+        <h1 class="h-statement" data-anim data-delay="2">
+          <span class="title-pin"></span>三项动作可在 12 个月内<br>释放 18-24% EBITDA 改善空间
+        </h1>
+        <p class="lead" style="max-width: 50em;" data-anim data-delay="3">
+          基于标杆差距、价格纪律与组织效率的综合测算；优先级按价值密度与落地难度排序。
+        </p>
+      </div>
+      <div class="grid grid-3" style="border-top: 1px solid var(--line); padding-top: var(--sp-5);" data-anim data-delay="4">
+        <div><div class="t-meta">汇报对象</div><div class="h-md" style="margin-top: 4px;">[替换：CEO / 董事会]</div></div>
+        <div><div class="t-meta">汇报日期</div><div class="h-md" style="margin-top: 4px;">2026-05-24</div></div>
+        <div><div class="t-meta">汇报人</div><div class="h-md" style="margin-top: 4px;">[替换：Alan Lee]</div></div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">CONFIDENTIAL</div>
+      <div class="center"></div>
+      <div class="right">← → 翻页 · ESC 索引 · B 静态</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 2 · Executive Summary（KPI 行 + 决策含义 + value waterfall）
+       ============================================================ -->
+  <section class="slide" data-layout="executive-summary">
+    <div class="slide-head">
+      <div class="page-no">02 / 03</div>
+      <div class="deck-meta">VALUE DIAGNOSTIC</div>
+      <div class="section-label">EXECUTIVE SUMMARY</div>
+    </div>
+
+    <div class="grid" style="grid-template-rows: auto auto 1fr; gap: var(--sp-6);">
+      <div data-anim>
+        <h2 class="h-hero"><span class="title-pin"></span>三项动作贡献超过 70% 的可捕获价值</h2>
+        <p class="lead" style="max-width: 60em; margin-top: var(--sp-3);">
+          基线 EBITDA 100；价格纪律、客户组合与交付效率分别贡献 +6 / +8 / +5，达成 119 的目标状态。
+        </p>
+      </div>
+
+      <div class="diag-strip" data-anim data-delay="1">
+        <div class="diag-label">价值诊断链路</div>
+        <div class="diag-track">
+          <div class="diag-line"></div>
+          <div class="diag-nodes">
+            <div class="diag-node n-navy"><span class="label">基线</span></div>
+            <div class="diag-node n-navy"><span class="label">价盘</span></div>
+            <div class="diag-node n-red"><span class="label">客户</span></div>
+            <div class="diag-node n-red"><span class="label">渠道</span></div>
+            <div class="diag-node n-red"><span class="label">交付</span></div>
+            <div class="diag-node n-green"><span class="label">组织</span></div>
+            <div class="diag-node n-green"><span class="label">看板</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2-1" style="align-items: start; gap: var(--sp-6);">
+        <div class="grid grid-3">
+          <div class="kpi-tile" data-anim data-delay="2">
+            <div class="kpi-num" data-anim-num>18-24%</div>
+            <div class="kpi-label">EBITDA 提升空间</div>
+            <div class="kpi-note">由价格纪律、组合优化和交付效率共同驱动</div>
+          </div>
+          <div class="kpi-tile kpi-red" data-anim data-delay="3">
+            <div class="kpi-num" data-anim-num>3.8x</div>
+            <div class="kpi-label">价值 / 复杂度排序</div>
+            <div class="kpi-note">Top 3 动作贡献超过 70% 的可捕获价值</div>
+          </div>
+          <div class="kpi-tile kpi-green" data-anim data-delay="4">
+            <div class="kpi-num" data-anim-num>90 天</div>
+            <div class="kpi-label">首轮试点周期</div>
+            <div class="kpi-note">先跑通一个区域、两条产品线和核心客户群</div>
+          </div>
+        </div>
+
+        <div class="panel" data-anim data-delay="5">
+          <div class="panel-title">决策含义</div>
+          <div class="panel-item">先收敛到少数高确定性动作</div>
+          <div class="panel-item">建立周度价值追踪机制</div>
+          <div class="panel-item">90 天内完成首轮闭环验证</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">02</div>
+      <div class="center">价值瀑布拆解</div>
+      <div class="right">2026-05-24</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 3 · Implementation Roadmap（路标 + 执行看板）
+       ============================================================ -->
+  <section class="slide" data-layout="roadmap">
+    <div class="slide-head">
+      <div class="page-no">03 / 03</div>
+      <div class="deck-meta">IMPLEMENTATION PLAN</div>
+      <div class="section-label">IMPLEMENTATION ROADMAP</div>
+    </div>
+
+    <div class="grid" style="grid-template-rows: auto 1fr; gap: var(--sp-6);">
+      <div data-anim>
+        <h2 class="h-hero"><span class="title-pin"></span>建议以 3 条工作流推进：<br>先锁定价值，再建立节奏，最后固化能力</h2>
+        <p class="lead" style="max-width: 64em; margin-top: var(--sp-3);">
+          每条工作流均设置可量化里程碑，避免停留在方案层面；第 4 周即可形成第一轮经营看板。
+        </p>
+      </div>
+
+      <div class="grid-2-1" style="gap: var(--sp-6); align-items: stretch;">
+        <div class="roadmap" data-anim data-delay="1">
+          <div class="roadmap-head">
+            <div></div>
+            <div>W1-2</div><div>W3-4</div><div>W5-8</div><div>W9-12</div>
+          </div>
+          <div class="roadmap-lane">
+            <div class="lane-label">1 价值锁定</div>
+            <div class="lane-block b-navy" style="grid-column: 2 / span 2;">
+              清理价格例外、客户分层与 Top 机会清单
+            </div>
+            <div></div><div></div>
+          </div>
+          <div class="roadmap-lane">
+            <div class="lane-label">2 节奏建立</div>
+            <div></div>
+            <div class="lane-block b-red" style="grid-column: 3 / span 2;">
+              周度经营会、红黄绿预警与行动闭环
+            </div>
+            <div></div>
+          </div>
+          <div class="roadmap-lane">
+            <div class="lane-label">3 能力固化</div>
+            <div></div><div></div>
+            <div class="lane-block b-green" style="grid-column: 4 / span 2;">
+              形成模板、看板与一线销售动作手册
+            </div>
+          </div>
+        </div>
+
+        <div class="scorecard" data-anim data-delay="2">
+          <div class="sc-head">执行看板</div>
+          <div class="sc-row">
+            <div class="sc-label">价格例外率</div>
+            <div class="sc-value">&lt; 5%</div>
+            <div class="sc-dot dot-green"></div>
+          </div>
+          <div class="sc-row">
+            <div class="sc-label">高潜客户覆盖</div>
+            <div class="sc-value">85%</div>
+            <div class="sc-dot dot-green"></div>
+          </div>
+          <div class="sc-row">
+            <div class="sc-label">行动闭环周期</div>
+            <div class="sc-value">7 天</div>
+            <div class="sc-dot dot-amber"></div>
+          </div>
+          <div class="sc-row">
+            <div class="sc-label">试点毛利提升</div>
+            <div class="sc-value">+6 pt</div>
+            <div class="sc-dot dot-red"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">03 · NEXT STEPS</div>
+      <div class="center">用两周完成数据校验与试点市场选择，随后进入 90 天价值冲刺</div>
+      <div class="right">END</div>
+    </div>
+  </section>
+
+</div>
+
+<div id="hud">← → 翻页 · ESC 索引 · B 静态 · F 全屏</div>
+
+<div id="overview">
+  <h3>SLIDE INDEX</h3>
+  <div class="ov-grid" id="ov-grid"></div>
+</div>
+
+<script>
+  // ============================================================
+  // 平台检测：Windows 用户没有 Inter ExtraLight，调整大字字重
+  // ============================================================
+  if (/Win/i.test(navigator.platform || navigator.userAgentData?.platform || '')) {
+    document.body.classList.add('is-win');
+  }
+
+  // ============================================================
+  // 低功耗模式（B 键 / prefers-reduced-motion）
+  // ============================================================
+  (function() {
+    const KEY = 'alanppt-low-power';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stored = localStorage.getItem(KEY);
+    const initial = stored === '1' || (stored === null && reduced);
+    if (initial) document.body.classList.add('low-power');
+    window.__toggleLowPower = function() {
+      const on = document.body.classList.toggle('low-power');
+      localStorage.setItem(KEY, on ? '1' : '0');
+      document.getElementById('hud').textContent =
+        on ? '← → 翻页 · ESC 索引 · B 动态 · F 全屏' : '← → 翻页 · ESC 索引 · B 静态 · F 全屏';
+    };
+  })();
+
+  // ============================================================
+  // 翻页系统
+  // ============================================================
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let current = 0;
+
+  function show(idx) {
+    if (idx < 0 || idx >= slides.length) return;
+    slides[current].classList.remove('active');
+    current = idx;
+    slides[current].classList.add('active');
+    document.body.classList.toggle('dark-bg', slides[current].classList.contains('dark'));
+    history.replaceState(null, '', '#' + (idx + 1));
+  }
+
+  function next() { show(Math.min(current + 1, slides.length - 1)); }
+  function prev() { show(Math.max(current - 1, 0)); }
+
+  // 初始化：URL hash 或第一页
+  const hash = parseInt(location.hash.replace('#', ''), 10);
+  show(isNaN(hash) ? 0 : Math.max(0, Math.min(hash - 1, slides.length - 1)));
+
+  // ============================================================
+  // 键盘 / 滚轮 / 触屏
+  // ============================================================
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea')) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown': case 'j': case 'k': next(); e.preventDefault(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'h': prev(); e.preventDefault(); break;
+      case 'Home': show(0); break;
+      case 'End': show(slides.length - 1); break;
+      case 'Escape': toggleOverview(); break;
+      case 'b': case 'B': window.__toggleLowPower(); break;
+      case 'f': case 'F':
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen();
+        break;
+      default:
+        const num = parseInt(e.key, 10);
+        if (!isNaN(num) && num >= 1 && num <= 9) show(num - 1);
+    }
+  });
+
+  let wheelLock = false;
+  document.addEventListener('wheel', (e) => {
+    if (wheelLock || Math.abs(e.deltaY) < 30) return;
+    wheelLock = true;
+    if (e.deltaY > 0) next(); else prev();
+    setTimeout(() => { wheelLock = false; }, 500);
+  }, { passive: true });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { if (dx < 0) next(); else prev(); }
+  });
+
+  // ============================================================
+  // ESC 索引页（缩略图网格）
+  // ============================================================
+  const overview = document.getElementById('overview');
+  const ovGrid = document.getElementById('ov-grid');
+
+  function buildOverview() {
+    ovGrid.innerHTML = '';
+    slides.forEach((slide, i) => {
+      const card = document.createElement('div');
+      card.className = 'ov-card';
+      const num = document.createElement('div');
+      num.className = 'ov-num';
+      num.textContent = String(i + 1).padStart(2, '0');
+      card.appendChild(num);
+
+      const thumb = document.createElement('div');
+      thumb.className = 'ov-thumb';
+      const clone = slide.cloneNode(true);
+      clone.classList.add('active');  // force visible in thumbnail
+      clone.style.opacity = '1';
+      clone.style.visibility = 'visible';
+      clone.style.position = 'relative';
+      clone.style.transition = 'none';
+      // 强制清掉所有 anim 类的隐藏
+      clone.querySelectorAll('[data-anim], [data-anim-num], [data-anim-bar], [data-anim-hbar]').forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+      thumb.appendChild(clone);
+      card.appendChild(thumb);
+
+      card.addEventListener('click', () => { show(i); toggleOverview(); });
+      ovGrid.appendChild(card);
+    });
+  }
+
+  function toggleOverview() {
+    if (overview.classList.contains('show')) {
+      overview.classList.remove('show');
+    } else {
+      buildOverview();
+      overview.classList.add('show');
+    }
+  }
+</script>
+
+</body>
+</html>

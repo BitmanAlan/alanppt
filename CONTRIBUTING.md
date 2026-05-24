@@ -1,33 +1,27 @@
 # 维护说明
 
-本 skill 是 Alan 的私有维护项目，仓库在 `~/dev/alanppt/`，通过软链挂到 `~/.claude/skills/alanppt`。下面是日常修改时的几条硬规则。
+本 skill 是 Alan 的私有维护项目，仓库在 `~/dev/alanppt/`，通过软链挂到 `~/.claude/skills/alanppt`。
 
 ## 文件分工
 
-- `SKILL.md` — 整个 skill 的入口和主流程，加新路径或改决策表才动这里
-- `references/*.md` — 工作流细节、版式手册、自检清单，按路径分文件
-- `assets/template*.html` — A/B 路径的种子模板，CSS 类名的**唯一来源**
-- `assets/mckinsey-pptx/` — C 路径的 self-contained 工作目录（拷到项目就能用）
-- `scripts/validate-swiss-deck.mjs` — B 路径静态校验器
+- `SKILL.md` — 整个 skill 的入口和主流程
+- `references/*.md` — 工作流细节、layout 手册、自检清单
+- `assets/template-consulting.html` — 网页 deck 种子模板，CSS 类名的**唯一来源**
+- `assets/mckinsey-pptx/` — 可编辑 pptx self-contained 工作目录
 
 ## 修改原则
 
-### 模板（assets/template*.html）
+### 模板（template-consulting.html）
 
-- 增加 layout 用到的新类时，**先在模板的 `<style>` 里补类**，再在 `layouts*.md` 里写骨架；不要让 layouts 引用未定义的类
-- 风格 A 和 B 的类名互不通用（同名语义不同），改一边不要顺手改另一边
-- 修改完跑一遍：用 `template-swiss.html` 自己生成一份 7 页测试 deck，浏览器打开过一遍 P0 检查
+- 增加 layout 用到的新类时，**先在模板的 `<style>` 里补类**，再在 `layouts-consulting.md` 里写骨架；不要让 layouts 引用未定义的类
+- 改动前先用 playwright 截图当前 baseline，改完后对比
+- 永远保持"无衬线 only + McKinsey 调色板 + 无装饰"硬约束
 
-### 版式手册（layouts*.md）
+### Layout 手册（layouts-consulting.md）
 
-- 风格 A：可以新增 layout，扩展到 11/12/13 类
-- 风格 B：**严守 22 个登记版式**，新增正文页要先评估是不是真的不能用现有 S01-S22 改造
-- 新版式必须带 Pre-flight 类名清单
-
-### 校验器（scripts/validate-swiss-deck.mjs）
-
-- 加 B 路径新规则时同步更新校验器
-- 校验器是"硬约束的最后一道防线"，不能只靠 checklist 提醒
+- 新增 layout 必须带 Pre-flight 类名清单（顶部清单也要同步加）
+- 每个 layout 要包含：用途 / 关键决策 / 完整 HTML 骨架 / 变体说明
+- layout 编号是稳定的——只能往后加，不能改前面的
 
 ### C 路径（assets/mckinsey-pptx/）
 
@@ -35,7 +29,7 @@
 - `image2-prompt-template.md` 的 Shared Visual System 段是契约，改它要同步看下游 `make-deck.js` 的配色是否一致
 - 路径和命名硬规则在 `references/mckinsey-pptx.md` 的"文件路径约定"段
 
-### 自检清单（checklist*.md）
+### 自检清单（checklist-mckinsey.md）
 
 - 踩过的坑及时归到对应 P0/P1/P2/P3 级别
 - 描述要带"现象 + 根因 + 做法"，单纯"不要 X"不行
@@ -50,13 +44,14 @@ git commit -m "<area>: <one-line change> (<why>)"
 ```
 
 commit subject 用 `<area>: <change>` 格式，例如：
-- `swiss-layouts: tighten S22 hero image safe zone (sub-title was clipped on 1366×768)`
+- `template-consulting: tighten cover safe zone (title was clipped on 1366×768)`
 - `mckinsey-pptx: add diagnostic strip primitive to make-deck.js`
-- `skill: simplify path D trigger keywords table`
+- `skill: simplify trigger keywords for 3 output formats`
 
 ## 不要做的事
 
-- 不要在生成的 PPT / HTML / 封面 / 配图里写入 "alanppt" 或任何第三方品牌名
-- 不要把 LICENSE 里的版权声明删掉（MIT 协议硬要求）
-- 不要给 A/B/C/D 四条路径之外的"第五条路径"开门，除非已经在 SKILL.md 里走完一轮决策表更新
+- 不要在生成的 PPT / HTML / 封面 / 配图里写入 "alanppt" 或任何品牌名
+- 不要加回 A 杂志风 / B 瑞士风 / WebGL 流体 / 点阵装饰这些"非咨询风"元素——它们是 v1 时期试过被否定的方向
+- 不要给"专业咨询风"之外的"第二种视觉风格"开门，除非已经在 SKILL.md 里走完一轮决策表更新
 - 不要在 checklist 里写"看情况"、"视需要"这种模糊词，要么是硬规则要么不写
+- 不要在 D 路径封面里直接截 deck 的某一页——必须按 cover-specs.md 重新构图
