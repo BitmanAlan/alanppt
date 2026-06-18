@@ -1,77 +1,62 @@
-# alanppt · Professional consulting PPT skill
+<div align="center">
 
-> Alan Lee's personal PPT generation skill. Single visual identity (McKinsey/BCG consulting aesthetic), three output formats. See [`SKILL.md`](./SKILL.md) for the full workflow; this README is a quick reference.
+# alanppt
 
-## Design identity
+**A PPT-generation Skill with four top-tier visual identities**
 
-**Professional consulting style** · Conclusion-first · Grid-driven · Restrained palette · High information density · No decoration
+*Design Read first · pick the identity by context · breathing-first · fresh-eyes visual QA*
 
-Inspiration: McKinsey / BCG / Bain client deck aesthetic.
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-1E2761.svg)](./LICENSE)
+[![Identities](https://img.shields.io/badge/identities-4-17365D.svg)](./references/design-identities.md)
+[![Author](https://img.shields.io/badge/original-Alan%20Lee%20(BitmanAlan)-C62828.svg)](#attribution--reuse)
 
-**Banned**: WebGL fluid backgrounds, dot matrix decoration, serif magazine style, Monocle-style, Swiss colored blocks, stock photos.
+> Not one style for everything — **read the context first, then pick the identity.** Four self-contained design systems: consulting, keynote, editorial, dark-tech.
+> Full workflow in [`SKILL.md`](./SKILL.md); identity recipes in [`references/design-identities.md`](./references/design-identities.md).
 
-## Three output formats
+</div>
+
+---
+
+## ✨ Four visual identities
+
+| | Identity | Use for | Feel | Inspiration |
+|---|---|---|---|---|
+| **A** | Consulting | client reports / due diligence / board / IPO | restrained, no decoration, conclusion-first, grid-driven | McKinsey / BCG / Bain |
+| **B** | Keynote | product launch / roadshow / Demo Day / talks | dark, oversized type, macro whitespace, soft light | Apple Keynote |
+| **C** | Editorial | brand stories / opinion / industry reports | serif display, warm tones, grain, magazine layout | Editorial Luxury |
+| **D** | Dark-tech | AI / tech product / technical launch | OLED black, mesh gradients, glass, geometric grotesk | Linear / Vercel |
+
+> Pick the wrong style and it fails before it starts. State a one-line **Design Read** up front (default A). The four identities **never mix**.
+
+## 🎯 Output formats
 
 | Format | Output | When |
 |---|---|---|
-| **HTML web deck** | Single HTML file (horizontal swipe) | Internal sharing / send link to client for preview / Demo Day |
-| **Editable pptx** | .pptx (PowerPoint second-edit) | Client consulting deliverable / exec presentation / handover |
-| **Multi-platform cover** | Single image (21:9 / 1:1 / 3:4 / 16:9 / 9:16) | WeChat header / share card / Xiaohongshu / video platform / vertical |
+| **HTML deck** | single-file HTML (horizontal swipe, all four identities) | internal share / client preview link / Demo Day / talk |
+| **Editable pptx** | .pptx (editable in PowerPoint) | client delivery / exec presentation / handoff for edits |
+| **Multi-platform cover** | single image (21:9 / 1:1 / 3:4 / 16:9 / 9:16) | social / thumbnails / cover art |
 
-All three formats **share one visual system**: same McKinsey palette, same typography, same conclusion-first principle.
+## 🫁 Two laws across all four identities
 
-## Trigger keywords
+- **Breathing-first**: whitespace is the default, not waste — keep ≥30% negative space per slide, point count is a ceiling not a target, body text never touches the edge, split a page rather than cram it.
+- **Fresh-eyes visual QA**: you have expectation-blindness about your own layout. Before delivery you **must** render to images and spawn a fresh subagent to hunt for issues (crowding / overflow / overlap), then fix and re-verify. See [`references/visual-qa.md`](./references/visual-qa.md).
 
-- "make a deck" / "create slides" / "build a presentation"
-- "McKinsey deck" / "BCG style" / "consulting deck"
-- "editable pptx" / "client deck" / "exec presentation"
-- "web deck" / "horizontal swipe deck"
-- "make a cover" / "WeChat header" / "Xiaohongshu cover"
+## 📜 Attribution & Reuse
 
-## Repo layout
+Originally created by **Alan Lee (BitmanAlan)**, © 2026, licensed under **[CC BY-SA 4.0](./LICENSE)**.
 
-```
-alanppt/
-├── SKILL.md                  ← main doc
-├── README.md / README.en.md  ← quick ref
-├── LICENSE                   ← MIT
-├── assets/
-│   ├── template-consulting.html  ← web deck template (10 layouts)
-│   └── mckinsey-pptx/            ← editable pptx working dir
-│       ├── image2-prompt-template.md
-│       ├── decompose-prompt.md
-│       ├── rebuild-prompt.md
-│       ├── make-deck.js          ← pptxgenjs script (with consulting chart primitive library)
-│       └── package.json
-└── references/
-    ├── layouts-consulting.md     ← 10 layout patterns for web deck
-    ├── mckinsey-pptx.md          ← pptx workflow
-    ├── cover-specs.md            ← cover specs + prompts
-    └── checklist-mckinsey.md     ← QA checklist
-```
+**You may** use, modify, fork, and build upon it (including commercially).
 
-## Deployment
+**You must** (failing any one terminates the license automatically):
 
-This skill lives in `~/dev/alanppt/` (git-tracked) and is symlinked into `~/.claude/skills/alanppt` so Claude Code picks it up automatically.
+1. **Attribute** the original author Alan Lee (BitmanAlan); keep the [`LICENSE`](./LICENSE) and [`NOTICE`](./NOTICE) files and the attribution header in `SKILL.md`; state your changes.
+2. License your derivative under the **same CC BY-SA 4.0** — no closed-sourcing, no more-restrictive relicensing.
+3. **Do not present this work or its derivatives as your own original creation.**
 
-```bash
-ls -la ~/.claude/skills/alanppt
-# should point to → /Users/limingxuan/dev/alanppt
-```
+> You can build on its shoulders — but you can't erase the author, claim it as your own from-scratch work, or lock it up as proprietary.
 
-Edit in `~/dev/alanppt/`, commit with git — no copy step needed.
+---
 
-## Core design principles
-
-1. **Conclusion first**: titles state the conclusion ("Action releases 18-24% EBITDA"), not the topic ("EBITDA analysis")
-2. **Restrained palette**: navy + 1 red accent + green/amber for status; red appears ≤ 3 times per deck
-3. **Grid-driven**: 12-column grid + 1px hairlines + generous whitespace; no rounded corners > 4px, no shadows, no gradients
-4. **Sans-serif only**: Inter / Helvetica / PingFang / YaHei; any serif is wrong
-5. **High information density**: 3-4 points per page, not "one sentence per page"; but never 8+ points
-6. **One deck, one format**: HTML / pptx / cover never mix; if you need two outputs, make two decks
-7. **No marketing voice**: avoid "revolutionary / disruptive / unleash"; use concrete verbs and numbers
-8. **No stock business photos**: real or generated, never "handshake / team meeting" stock — instant downgrade
-
-## License
-
-MIT — see [LICENSE](./LICENSE)
+<div align="center">
+<sub>© 2026 Alan Lee (BitmanAlan) · CC BY-SA 4.0 · attribution is non-removable</sub>
+</div>

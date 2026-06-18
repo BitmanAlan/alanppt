@@ -1,0 +1,44 @@
+================================================================================
+alanppt — 专业多风格 PPT 生成 Skill
+Original author / 原创作者:  Alan Lee (BitmanAlan)  <alansightvc@gmail.com>
+First published / 首次发布:  2026
+License / 许可:               CC BY-SA 4.0  (见 LICENSE)
+================================================================================
+
+本文件（NOTICE）是 alanppt skill 的原创归属凭证。
+
+⚠️  任何复制、fork 或二次开发本 skill 的人，**必须原样保留本 NOTICE 文件**，
+    并在其衍生作品的显著位置标注：
+
+        "基于 Alan Lee (BitmanAlan) 的 alanppt skill 二次开发，
+         原作以 CC BY-SA 4.0 授权；本衍生版同样以 CC BY-SA 4.0 开源。"
+        "Built upon the 'alanppt' skill by Alan Lee (BitmanAlan),
+         licensed under CC BY-SA 4.0."
+
+    删除本 NOTICE、抹去署名、或将本作品/衍生版宣称为自己的原创，
+    均违反 CC BY-SA 4.0，授权自动终止并构成侵权。
+
+--------------------------------------------------------------------------------
+原创范围（© 2026 Alan Lee）
+--------------------------------------------------------------------------------
+- SKILL.md 全部方法论与工作流
+- references/ 全部：四身份配方手册、各身份 layout 骨架、产出规范、视觉 QA 回环、
+  pptx 工作流、封面规格、检查清单
+- assets/ 全部模板：template-consulting / -keynote / -editorial / -darktech 的
+  视觉系统、CSS、布局与设计语言
+- "Design Read 前门 + 四身份 + 三旋钮 + 呼吸优先 + 换眼 QA 回环" 这一整套体系的组织与落地
+
+--------------------------------------------------------------------------------
+第三方致谢与许可（THIRD-PARTY CREDITS）
+--------------------------------------------------------------------------------
+本 skill 在构建中借鉴 / 复用了以下开源成果，谨此致谢；其各自版权归原作者所有：
+
+- 方法论灵感：design-taste-frontend（Design Read / 三旋钮 / 反默认纪律）、
+  high-end-visual-design（B/C/D 三档高级感配方与反 slop 清单）。本 skill 据此
+  重新组织、改写为面向 PPT 的体系，不含其原始代码。
+- pptx 公式重算：assets/mckinsey-pptx 及 recalc 相关工具链思路参考 Anthropic
+  官方 skills（pptx/xlsx），按其许可使用。
+- 谱系：项目早期形态参考过开源 PPT skill 生态（huashu-design / nuwa 等），
+  现版本为 Alan Lee 重写的独立实现。
+
+如你认为本 NOTICE 对某项第三方成果的标注有误或不足，请联系原作者更正。

@@ -1,21 +1,46 @@
-MIT License
+Copyright (c) 2026 Alan Lee (BitmanAlan). All original work.
 
-Copyright (c) 2026 Alan Lee
+This work — the "alanppt" skill, including SKILL.md, all references/,
+all assets/ (templates, design systems), and accompanying documentation —
+is licensed under the
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    Creative Commons Attribution-ShareAlike 4.0 International License
+    (CC BY-SA 4.0)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Full legal code:  https://creativecommons.org/licenses/by-sa/4.0/legalcode
+Human-readable :  https://creativecommons.org/licenses/by-sa/4.0/
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+────────────────────────────────────────────────────────────────────────
+YOU ARE FREE TO
+  • Share — copy and redistribute the material in any medium or format
+  • Adapt — remix, transform, and build upon the material (incl. fork &
+    further development) for any purpose, even commercially.
+
+UNDER THE FOLLOWING TERMS (BINDING)
+  1. ATTRIBUTION (BY) — You MUST give appropriate credit to the original
+     author "Alan Lee (BitmanAlan)", provide a link to this license, and
+     indicate if changes were made. You must retain the NOTICE file and
+     the attribution header in SKILL.md in any copy or derivative. You may
+     do so in any reasonable manner, but NOT in any way that suggests the
+     licensor endorses you or that you are the original creator.
+  2. SHAREALIKE (SA) — If you remix, transform, fork, or build upon this
+     work, you MUST distribute your contributions under this SAME license
+     (CC BY-SA 4.0). You may NOT relicense it under more restrictive or
+     proprietary terms, and you may NOT present the work or its derivatives
+     as your own original creation.
+  3. NO ADDITIONAL RESTRICTIONS — You may not apply legal terms or
+     technological measures that legally restrict others from doing
+     anything this license permits.
+
+────────────────────────────────────────────────────────────────────────
+PLAIN-LANGUAGE SUMMARY (中文)
+  欢迎使用、修改、fork、二次开发本 skill（含商用），但你必须：
+  ① 署名原作者 Alan Lee (BitmanAlan)，保留本 LICENSE 与 NOTICE 文件、
+     以及 SKILL.md 顶部的署名声明，并注明你做了哪些改动；
+  ② 你的衍生版本必须继续以 CC BY-SA 4.0 开源，不得闭源化、不得改用更
+     严格的私有许可、不得把本作品或其衍生版宣称为你自己的原创。
+  违反以上任一条，即丧失本许可授予的权利（自动终止），构成侵权。
+
+THIRD-PARTY NOTICE
+  本 skill 复用 / 借鉴了若干第三方开源成果，其各自版权与许可见 NOTICE 文件。
+  本许可仅覆盖 Alan Lee 的原创部分。
