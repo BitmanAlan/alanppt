@@ -5,22 +5,45 @@ description: Alan 的专业咨询风 PPT skill — 单一视觉身份（McKinsey
 
 # Alan PPT Skill
 
-> **重要**：本 skill 只走"专业咨询风"一种视觉身份，三种输出格式共用同一套视觉系统。任何"杂志风 / 瑞士风 / WebGL 流体 / 装饰性视觉"的请求都属于过去版本被否定的方向，**不要在生成物里复活它们**。生成的 PPT / HTML / 封面 / 配图里也**不要写入** "alanppt" 或任何品牌名。
+> **重要**：本 skill 覆盖**四种顶级视觉身份**，按客户场景选用——不是一种风格打天下，也**不是随意混搭**。每种身份是一套自洽、互不污染的设计系统（咨询风的克制绝不掺玻璃渐变，发布会风的留白绝不塞咨询密度）。生成物里**不要写入** "alanppt" 或任何品牌名。
 
-## 设计身份（决定一切的根原则）
+## 设计身份 · 四选一（决定一切的根原则）
 
-**专业咨询风** · McKinsey / BCG / Bain 客户汇报材料的视觉语言
+本 skill 不预设风格——**先读场景，再选身份**。四种身份各对应一类客户需求，详细配方见 `references/design-identities.md`。
 
-| 维度 | 规则 |
-|---|---|
-| 视觉锚点 | 结论先行 · 网格至上 · 配色克制 · 信息密度高 · 无装饰 |
-| 字体 | **无衬线 only**：Inter / Helvetica / 苹方 / 雅黑 / Noto Sans SC；**任何衬线字体出现都是错的** |
-| 配色 | navy #17365D（主蓝）+ ink #17212B（文字）+ muted #5C6773（次要）+ line #D9DEE5（hairline）+ red #C62828（accent，**整份 deck ≤ 3 次**）+ green #3A7D5A / amber #D79B35（状态色，不做装饰） |
-| 装饰 | 1px hairline + 红色 vertical 标题钉 + 顶部色条 + 浅灰背景块 |
-| 禁用 | WebGL 流体 / 点阵 / 渐变 / 阴影 / 圆角 > 4px / Stock photo / 营销 hero scene / 商务握手图 |
-| 入场动效 | 极简：opacity 0→1 + 微 translateY + 数字 scaleIn + bar grow-in；**禁用** 流体 / 视差 / sequence |
-| 标题 | **必须是结论句**："动作可释放 18-24% EBITDA" 而不是 "EBITDA 分析" |
-| 信息密度 | **呼吸优先**：3-4 个论点是**上限不是目标**；能用 2 个讲清就用 2，宁可拆成两页也不要挤满。每页留 ≥30% 负空间 |
+| 身份 | 适用场景 | 一句话气质 | 灵感源 |
+|---|---|---|---|
+| **A 咨询风** | 客户咨询汇报 / 尽调 / 董事会 / IPO 路演材料 | 克制、无装饰、结论先行、网格至上 | McKinsey / BCG / Bain |
+| **B Keynote 发布会风** | 产品发布 / Demo Day / 路演 / 大会主题演讲 | 深色、超大字、macro 留白、柔光 | Apple Keynote / Soft Structuralism |
+| **C Editorial 杂志风** | 品牌故事 / 观点内容 / 行业报告 / 内容营销 | 衬线大标、暖调、颗粒、编辑式排版 | Editorial Luxury / 杂志跨页 |
+| **D Dark-tech 玻璃风** | AI / 科技产品介绍 / 技术发布 | OLED 黑、网格渐变、玻璃质感、几何 Grotesk | Ethereal Glass / Linear / Vercel |
+
+### Design Read · 前门（动手前第一步，必做）
+
+借鉴 design-taste 的"先读懂再生成"：**任何 deck 开工前，先用一行声明"这份该是什么身份"**，避免无脑套默认风。
+
+1. 读信号：客户是谁、汇报场景、行业、有没有 vibe 词（"高级感/科技感/克制/发布会/杂志感"）、参考链接。
+2. 输出一行 **Design Read**：「这份读作：给 \<受众> 的 \<场景>，用 \<身份 A/B/C/D>，密度旋钮 \<低/中/高>。」
+3. 场景与身份不冲突就**直接声明并推进，不要追问**；只有真分不清（如"科技公司的董事会汇报"=A 还是 D）才问一个问题。
+4. **默认值**：没有明显风格信号时 → **A 咨询风**（最稳、最不会翻车）。
+
+### 三个旋钮（跨身份的微调，借自 design-taste-frontend）
+
+选定身份后，用三个旋钮微调，而不是另起炉灶：
+
+- **变化度 VARIANCE**（1 对称严整 ↔ 10 不对称张力）：A≈3 / B≈7 / C≈8 / D≈7
+- **动效 MOTION**（1 静态 ↔ 10 电影感）：A≈2 / B≈6 / C≈4 / D≈7
+- **密度 DENSITY**（1 画廊留白 ↔ 10 驾驶舱密集）：A≈4 / B≈2 / C≈3 / D≈3
+- **呼吸优先恒定**：无论哪个身份，每页留白 ≥30%、正文不顶边（见核心原则 #11）。
+
+### 跨身份铁律（四种都适用）
+
+- **结论先行**：每页大标题是结论句不是"关于 XX 的分析"。
+- **反默认**（借 high-end-visual "Absolute Zero"）：避开 LLM 默认审美——AI 紫渐变、居中 hero over dark mesh、三等分卡、Inter+slate 全家桶。
+- **字体配身份**：A 用无衬线（Inter/苹方）；B 用宽几何 Grotesk（Geist/Plus Jakarta，大字 weight 拉满）；C 用高对比变量衬线（PP Editorial/Source Han Serif）做大标 + 无衬线正文；D 用几何 Grotesk（Geist/Clash Display）。**A 出现衬线是错的；C 大标用无衬线是浪费**。
+- **换眼 QA 必跑**（见 #12 + `references/visual-qa.md`）：四种身份交付前都要渲染+换眼挑刺，重点查呼吸。
+
+> ⚠️ **身份不混搭**：一份 deck 只走一种身份。咨询风（A）继续遵守它原有的全部克制规则——**渐变/阴影/玻璃/圆角>4px/衬线 在 A 里依旧是错的**；这些只在 B/C/D 对应身份里按配方使用。
 
 ---
 
@@ -80,12 +103,21 @@ description: Alan 的专业咨询风 PPT skill — 单一视觉身份（McKinsey
 
 ### Step 2 · 拷贝模板
 
+**先按 Design Read 选定的身份，拷对应模板**（四选一）：
+
 ```bash
 mkdir -p "项目/XXX/deck/images"
+# A 咨询风（默认）
 cp "<SKILL_ROOT>/assets/template-consulting.html" "项目/XXX/deck/index.html"
+# B Keynote 发布会风
+cp "<SKILL_ROOT>/assets/template-keynote.html"    "项目/XXX/deck/index.html"
+# C Editorial 杂志风
+cp "<SKILL_ROOT>/assets/template-editorial.html"  "项目/XXX/deck/index.html"
+# D Dark-tech 玻璃风
+cp "<SKILL_ROOT>/assets/template-darktech.html"   "项目/XXX/deck/index.html"
 ```
 
-模板是**完整可运行**的——CSS、字体、翻页 JS、ESC 索引、低功耗模式、动效全已预设好。
+四个模板都是**完整可运行**的——CSS、字体、翻页 JS、ESC 索引、动效全已预设好，共用同一套翻页/键盘骨架，只是视觉系统不同。每个模板顶部注释写明它的身份与配方（详见 `references/design-identities.md`）。
 
 #### 2.1 · 必改占位符（**容易漏**）
 
@@ -224,7 +256,10 @@ alanppt/
 ├── LICENSE                   ← MIT
 ├── CONTRIBUTING.md           ← 维护说明
 ├── assets/
-│   ├── template-consulting.html  ← ★ HTML 路径模板（10 layout）
+│   ├── template-consulting.html  ← ★ 身份 A · 咨询风模板（10 layout）
+│   ├── template-keynote.html     ← ★ 身份 B · Keynote 发布会风模板
+│   ├── template-editorial.html   ← ★ 身份 C · Editorial 杂志风模板
+│   ├── template-darktech.html    ← ★ 身份 D · Dark-tech 玻璃风模板
 │   └── mckinsey-pptx/            ← ★ PPTX 路径 self-contained 工作目录
 │       ├── image2-prompt-template.md  ← Image-2 整页视觉 Prompt 模板
 │       ├── decompose-prompt.md        ← 拆透明 PNG 的 Prompt
@@ -232,7 +267,8 @@ alanppt/
 │       ├── make-deck.js               ← pptxgenjs 脚本（含咨询图表原语库）
 │       └── package.json               ← pptxgenjs + sharp 依赖声明
 └── references/
-    ├── layouts-consulting.md     ← ★ HTML · 10 种 layout 骨架（可粘贴）
+    ├── design-identities.md      ← ★ 四种视觉身份配方手册（A/B/C/D 各自宪法，先读）
+    ├── layouts-consulting.md     ← ★ 身份 A · 10 种 layout 骨架（可粘贴）
     ├── mckinsey-pptx.md          ← ★ PPTX · 完整工作流主文档
     ├── cover-specs.md            ← ★ COVER · 多平台封面规格 + Prompt 模板
     ├── checklist-mckinsey.md     ← ★ PPTX · 自检清单（P0/P1/P2/P3 + 呼吸 P2-5）
@@ -249,9 +285,10 @@ alanppt/
 
 ---
 
-## 核心设计原则（哲学）
+## 核心设计原则（哲学）· 身份 A 咨询风专属
 
-> 违反其中任何一条，画面瞬间从咨询风掉到 PowerPoint。
+> 下列 10 条是**身份 A（咨询风）的宪法**——无衬线/直角/单一红 accent/hairline 等只对 A 成立。**B/C/D 各有自己的配方**（见 `references/design-identities.md`），不要把 A 的克制规则套到 B/C/D，也不要把 B/C/D 的玻璃渐变带进 A。跨四身份恒定的只有：结论先行 · 呼吸优先(#11) · 换眼 QA(#12) · 反默认审美。
+> 对 A 而言：违反其中任何一条，画面瞬间从咨询风掉到 PowerPoint。
 
 1. **单一锚点色** — 一份 deck 只用一个 accent（红色），不允许多色高亮拼贴
 2. **极致字号对比** — 主标题（48px）与正文（16px）比例 ≥ 3:1；KPI 大数字（72px）与 label（24px）比例 3:1

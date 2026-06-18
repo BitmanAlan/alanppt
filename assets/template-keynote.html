@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<!-- =================================================================
+     alanppt · 身份 B · Keynote 发布会风（Apple Keynote / Soft Structuralism）
+     配方一句话：深色主场(near-black #0A0A0B + 高亮白 #F5F5F7 + 单一品牌强调色)、
+     宽几何 Grotesk 超大字、极柔环境光晕、macro 留白、一页一个重锤、DENSITY 最低。
+     翻页/键盘/索引 JS 复用自 template-consulting.html（验证过能跑）。
+     完整配方见 references/design-identities.md（B 那节）。
+     ================================================================= -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[必填] 替换为 Deck 标题</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- 可选：1 个 display 字体（Plus Jakarta Sans）。断网时降级到系统兜底栈，仍可离线打开。 -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* =============================================================
+     :root — Keynote 视觉系统（与咨询风完全独立、互不污染）
+     ============================================================= */
+  :root {
+    /* ---------- 配色：深色主场，单一品牌强调色（一份只用一个） ---------- */
+    --bg:           #0A0A0B;     /* near-black 主场 */
+    --bg-rgb:       10,10,11;
+    --bg-2:         #111114;     /* 略亮的层（次级面板） */
+    --ink:          #F5F5F7;     /* 高亮白文字 */
+    --ink-rgb:      245,245,247;
+    --muted:        rgba(245,245,247,0.56);   /* 次要文字 */
+    --faint:        rgba(245,245,247,0.34);   /* 元数据 / 页码 */
+    --hair:         rgba(245,245,247,0.10);   /* hairline white/10（唯一允许的线） */
+    --hair-strong:  rgba(245,245,247,0.16);
+
+    --accent:       #0A84FF;     /* 单一品牌强调色（电光蓝）。一份 deck 只用这一个 */
+    --accent-soft:  rgba(10,132,255,0.18);
+
+    /* 亮色页（before/after 的 "after" 或需要反差时用） */
+    --paper:        #FAFAFA;
+    --paper-ink:    #0A0A0B;
+    --paper-muted:  rgba(10,10,11,0.52);
+
+    /* ---------- 字体：宽几何 Grotesk + 系统苹方兜底（离线可开） ---------- */
+    --sans:  "Plus Jakarta Sans", "Geist", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei UI", "Helvetica Neue", sans-serif;
+
+    /* ---------- 字号：大字拉满，macro scale（vw 自适应 16:9） ---------- */
+    --t-meta:    min(0.82vw, 12px);     /* 页码 / eyebrow / 元数据 */
+    --t-eyebrow: min(0.95vw, 14px);     /* 小标签 caps */
+    --t-foot:    min(0.84vw, 12.5px);
+    --t-body:    min(1.15vw, 18px);     /* 正文（极少用） */
+    --t-lead:    min(1.6vw, 26px);      /* lead / slogan 副句 */
+    --t-md:      min(2vw, 30px);        /* 特性标题 */
+    --t-xl:      min(3.4vw, 54px);      /* 中标题 */
+    --t-hero:    min(5.4vw, 88px);      /* 大短句重锤 */
+    --t-mega:    min(9vw, 150px);       /* 封面产品名 / 超大短句 */
+    --t-num:     min(13vw, 220px);      /* 大数字重锤 */
+
+    /* ---------- spacing（vh 自适应，macro 留白） ---------- */
+    --sp-1: 0.6vh; --sp-2: 1.2vh; --sp-3: 2vh; --sp-4: 3vh;
+    --sp-5: 4.5vh; --sp-6: 6.5vh; --sp-7: 9vh; --sp-8: 13vh;
+
+    /* ---------- 动效：弹簧缓动 ---------- */
+    --spring: cubic-bezier(0.32, 0.72, 0, 1);
+    --d-base: 720ms;
+    --d-slow: 1000ms;
+  }
+
+  /* =============================================================
+     reset + 基座
+     ============================================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: var(--sans);
+    font-size: var(--t-body);
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+    font-feature-settings: "ss01", "tnum";
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+
+  /* =============================================================
+     deck 容器 + 翻页（结构复用咨询模板）
+     ============================================================= */
+  #deck { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: grid; grid-template-rows: auto 1fr auto;
+    row-gap: var(--sp-4);
+    padding: 7vh 7vw 5vh;              /* 呼吸：版边极松（≥画布 7%），macro 留白 */
+    background: var(--bg);
+    color: var(--ink);
+    opacity: 0; visibility: hidden;
+    transition: opacity var(--d-base) var(--spring);
+    overflow: hidden;
+  }
+  .slide.active { opacity: 1; visibility: visible; }
+
+  /* 内容偏少的页 → 正文区纵向居中，留白分到上下两侧（呼吸标准） */
+  .slide > .center-y { align-self: center; }
+  .lead, .body { max-width: 52ch; }
+  .lead.full, .body.full { max-width: none; }
+
+  /* ---------- 亮色页（反差用，软结构主义偶尔需要白场） ---------- */
+  .slide.paper {
+    background: var(--paper);
+    color: var(--paper-ink);
+  }
+  .slide.paper .h-mega, .slide.paper .h-hero, .slide.paper .h-xl,
+  .slide.paper .h-md, .slide.paper blockquote, .slide.paper .num { color: var(--paper-ink); }
+  .slide.paper .muted   { color: var(--paper-muted); }
+  .slide.paper .faint   { color: rgba(10,10,11,0.4); }
+  .slide.paper .hairline{ background: rgba(10,10,11,0.12); }
+  .slide.paper .eyebrow { color: var(--paper-muted); }
+  .slide.paper .lead { color: var(--paper-muted); }
+  .slide.paper .slide-head, .slide.paper .slide-foot { border-color: rgba(10,10,11,0.12); }
+  .slide.paper .page-no,
+  .slide.paper .slide-foot .left, .slide.paper .slide-foot .right,
+  .slide.paper .slide-foot .center { color: rgba(10,10,11,0.4); }
+  .slide.paper .deck-meta { color: rgba(10,10,11,0.4); }
+  .slide.paper .section-label { color: var(--paper-muted); }
+
+  /* =============================================================
+     极柔环境光晕（巨大、低透明度径向光晕，非硬阴影）
+     —— Keynote 的灵魂。每页一团或两团，慢慢呼吸。
+     ============================================================= */
+  .glow {
+    position: absolute; border-radius: 50%;
+    filter: blur(8px);
+    pointer-events: none; z-index: 0;
+    opacity: 0;
+    transition: opacity var(--d-slow) var(--spring);
+  }
+  .slide.active .glow { opacity: 1; }
+  .glow.g-accent {
+    background: radial-gradient(circle at center,
+      var(--accent) 0%, var(--accent-soft) 32%, transparent 68%);
+  }
+  .glow.g-white {
+    background: radial-gradient(circle at center,
+      rgba(245,245,247,0.10) 0%, rgba(245,245,247,0.04) 40%, transparent 70%);
+  }
+  /* 所有真实内容浮在光晕之上 */
+  .slide-head, .slide-foot, .stage { position: relative; z-index: 2; }
+
+  /* =============================================================
+     页头 / 页脚（沿用咨询模板的 3 列元数据带结构，换成 hairline white/10）
+     ============================================================= */
+  .slide-head {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--sp-5);
+    padding-bottom: var(--sp-3);
+    border-bottom: 1px solid var(--hair);
+  }
+  .slide-head .page-no {
+    font-size: var(--t-meta); font-weight: 600;
+    color: var(--faint); letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+  }
+  .slide-head .deck-meta {
+    font-size: var(--t-meta); color: var(--faint);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .slide-head .section-label {
+    font-size: var(--t-meta); font-weight: 600;
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.22em; text-align: right;
+  }
+
+  .slide-foot {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: end; gap: var(--sp-5);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--hair);
+    color: var(--faint); font-size: var(--t-foot);
+  }
+  .slide-foot .left, .slide-foot .right { letter-spacing: 0.12em; font-variant-numeric: tabular-nums; }
+  .slide-foot .center { text-align: center; }
+
+  /* =============================================================
+     stage — 正文舞台
+     ============================================================= */
+  .stage { display: grid; align-content: center; }
+
+  /* =============================================================
+     字号 helper（大字 weight 600-800 拉满）
+     ============================================================= */
+  .eyebrow {
+    font-size: var(--t-eyebrow); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.28em;
+    color: var(--muted);
+  }
+  .eyebrow .dot { color: var(--accent); }
+
+  .h-mega {
+    font-size: var(--t-mega); font-weight: 800;
+    line-height: 0.98; letter-spacing: -0.035em;
+    color: var(--ink);
+  }
+  .h-hero {
+    font-size: var(--t-hero); font-weight: 700;
+    line-height: 1.04; letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .h-xl {
+    font-size: var(--t-xl); font-weight: 700;
+    line-height: 1.1; letter-spacing: -0.02em;
+  }
+  .h-md {
+    font-size: var(--t-md); font-weight: 600;
+    line-height: 1.2; letter-spacing: -0.01em;
+  }
+  .lead {
+    font-size: var(--t-lead); font-weight: 400;
+    line-height: 1.45; color: var(--muted);
+    letter-spacing: -0.005em;
+  }
+  .muted  { color: var(--muted); }
+  .faint  { color: var(--faint); }
+  .accent { color: var(--accent); }
+
+  .num {
+    font-size: var(--t-num); font-weight: 800;
+    line-height: 0.86; letter-spacing: -0.05em;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .num .unit { font-size: 0.32em; font-weight: 700; letter-spacing: -0.02em; vertical-align: 0.28em; }
+  .num.accent { color: var(--accent); }
+
+  .hairline { height: 1px; background: var(--hair); width: 100%; }
+
+  /* =============================================================
+     特性三点（大留白横排，无卡片边框 — 只用 hairline 分隔）
+     ============================================================= */
+  .features {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-6);
+  }
+  .feature { display: grid; gap: var(--sp-3); align-content: start; }
+  .feature .f-index {
+    font-size: var(--t-md); font-weight: 800;
+    color: var(--accent); letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .feature .f-title { font-size: var(--t-md); font-weight: 700; letter-spacing: -0.01em; }
+  .feature .f-desc  { font-size: var(--t-body); color: var(--muted); line-height: 1.55; max-width: 26ch; }
+  .feature .f-rule  { height: 1px; background: var(--hair); width: 100%; margin-bottom: var(--sp-1); }
+
+  /* =============================================================
+     对比 / before-after（左右两栏，中线 hairline）
+     ============================================================= */
+  .compare {
+    display: grid; grid-template-columns: 1fr 1px 1fr;
+    gap: var(--sp-6); align-items: center;
+  }
+  .compare .divider { background: var(--hair); width: 1px; height: 60%; align-self: center; }
+  .compare .side { display: grid; gap: var(--sp-3); align-content: center; padding: 0 var(--sp-4); }
+  .compare .side .tag {
+    font-size: var(--t-eyebrow); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.22em;
+  }
+  .compare .side.before .tag { color: var(--faint); }
+  .compare .side.after  .tag { color: var(--accent); }
+  .compare .side .big {
+    font-size: var(--t-hero); font-weight: 800;
+    line-height: 0.96; letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+  .compare .side.before .big { color: var(--muted); }
+  .compare .side.after  .big { color: var(--ink); }
+  .compare .side .cap { font-size: var(--t-body); color: var(--muted); }
+
+  /* =============================================================
+     入场动效（重质感淡入上浮 + blur 渐清，弹簧缓动）
+     ============================================================= */
+  [data-anim] {
+    opacity: 0; transform: translateY(28px); filter: blur(10px);
+    transition: opacity var(--d-base) var(--spring),
+                transform var(--d-base) var(--spring),
+                filter var(--d-base) var(--spring);
+  }
+  .slide.active [data-anim] { opacity: 1; transform: translateY(0); filter: blur(0); }
+  .slide.active [data-anim][data-delay="1"] { transition-delay: 120ms; }
+  .slide.active [data-anim][data-delay="2"] { transition-delay: 240ms; }
+  .slide.active [data-anim][data-delay="3"] { transition-delay: 360ms; }
+  .slide.active [data-anim][data-delay="4"] { transition-delay: 480ms; }
+  .slide.active [data-anim][data-delay="5"] { transition-delay: 600ms; }
+  .slide.active [data-anim][data-delay="6"] { transition-delay: 720ms; }
+
+  /* 数字 scaleIn */
+  [data-anim-num] {
+    opacity: 0; transform: scale(0.9); filter: blur(14px);
+    transition: opacity var(--d-slow) var(--spring),
+                transform var(--d-slow) var(--spring),
+                filter var(--d-slow) var(--spring);
+  }
+  .slide.active [data-anim-num] { opacity: 1; transform: scale(1); filter: blur(0); }
+
+  /* 低功耗：禁动效直接显示 */
+  body.low-power [data-anim],
+  body.low-power [data-anim-num],
+  body.low-power .glow { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  body.low-power .slide { transition: none !important; }
+
+  /* =============================================================
+     ESC 索引 overlay
+     ============================================================= */
+  #overview {
+    position: fixed; inset: 0;
+    background: rgba(10,10,11,0.97);
+    z-index: 100; display: none; overflow: auto;
+    padding: 5vh 5vw;
+    backdrop-filter: blur(4px);
+  }
+  #overview.show { display: block; }
+  #overview h3 {
+    color: var(--ink); font-size: var(--t-md); font-weight: 700;
+    margin-bottom: 4vh; letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  #overview .ov-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3vh 3vw; }
+  #overview .ov-card {
+    background: var(--bg-2); aspect-ratio: 16/9; cursor: pointer;
+    position: relative; overflow: hidden;
+    border: 1px solid var(--hair);
+    transition: transform 240ms var(--spring), border-color 240ms var(--spring);
+  }
+  #overview .ov-card:hover { transform: translateY(-6px); border-color: var(--hair-strong); }
+  #overview .ov-card .ov-thumb {
+    position: absolute; inset: 0;
+    transform: scale(0.3333); transform-origin: top left;
+    width: 300%; height: 300%; pointer-events: none;
+  }
+  #overview .ov-card .ov-num {
+    position: absolute; top: 8px; left: 12px;
+    font-size: 11px; font-weight: 700; color: var(--ink);
+    background: rgba(10,10,11,0.7); padding: 2px 7px; z-index: 2;
+    letter-spacing: 0.08em;
+  }
+
+  /* =============================================================
+     HUD（右下角导航提示）
+     ============================================================= */
+  #hud {
+    position: fixed; bottom: 1.4vh; left: 50%; transform: translateX(-50%);
+    font-size: 11px; color: var(--faint); letter-spacing: 0.1em;
+    z-index: 50; user-select: none;
+    padding: 5px 14px;
+    border: 1px solid var(--hair);
+    background: rgba(10,10,11,0.55);
+    backdrop-filter: blur(8px);
+    opacity: 0; transition: opacity 400ms var(--spring);
+  }
+  #deck:hover ~ #hud, #hud:hover { opacity: 1; }
+  /* paper 页上 HUD 反白可读 */
+  body.on-paper #hud { background: rgba(250,250,250,0.7); color: rgba(10,10,11,0.5); border-color: rgba(10,10,11,0.12); }
+
+  /* =============================================================
+     打印（每张 slide 一页）
+     ============================================================= */
+  @media print {
+    html, body { overflow: visible; height: auto; }
+    #deck { height: auto; }
+    .slide { position: relative; inset: auto; opacity: 1 !important; visibility: visible !important; page-break-after: always; height: 100vh; }
+    .glow { opacity: 1 !important; }
+    #hud, #overview { display: none !important; }
+    [data-anim], [data-anim-num] { opacity: 1 !important; transform: none !important; filter: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- ============================================================
+       SLIDE 1 · 封面 COVER（超大产品名 + 一句 slogan）
+       ============================================================ -->
+  <section class="slide" data-layout="cover">
+    <div class="glow g-accent" style="width: 58vw; height: 58vw; left: -14vw; bottom: -22vw;"></div>
+    <div class="glow g-white" style="width: 40vw; height: 40vw; right: -10vw; top: -12vw;"></div>
+
+    <div class="slide-head">
+      <div class="page-no">01 / 06</div>
+      <div class="deck-meta">PRODUCT LAUNCH 2026</div>
+      <div class="section-label">KEYNOTE</div>
+    </div>
+
+    <div class="stage center-y">
+      <div class="eyebrow" data-anim data-delay="1">下一代随身 AI <span class="dot">·</span> 全新登场</div>
+      <h1 class="h-mega" data-anim data-delay="2" style="margin-top: var(--sp-3);">Aura&nbsp;One</h1>
+      <p class="lead" data-anim data-delay="3" style="margin-top: var(--sp-4); max-width: 30ch;">
+        把一整个智能体，装进一枚硬币大小的随身设备。
+      </p>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">CONFIDENTIAL</div>
+      <div class="center"></div>
+      <div class="right">AURA ONE · 2026</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 2 · 大数字重锤（一页一个核心数字）
+       ============================================================ -->
+  <section class="slide" data-layout="big-number">
+    <div class="glow g-accent" style="width: 50vw; height: 50vw; right: -8vw; top: 50%; transform: translateY(-50%);"></div>
+
+    <div class="slide-head">
+      <div class="page-no">02 / 06</div>
+      <div class="deck-meta">RESPONSE LATENCY</div>
+      <div class="section-label">PERFORMANCE</div>
+    </div>
+
+    <div class="stage center-y">
+      <div class="eyebrow" data-anim data-delay="1">端侧推理 <span class="dot">·</span> 实测延迟</div>
+      <div class="num accent" data-anim-num style="margin-top: var(--sp-3);">180<span class="unit">ms</span></div>
+      <p class="lead" data-anim data-delay="3" style="margin-top: var(--sp-4); max-width: 34ch;">
+        从你开口，到它回应。比上一代快 <span style="color: var(--ink); font-weight: 700;">4.2 倍</span>，几乎察觉不到等待。
+      </p>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">02</div>
+      <div class="center">端到端首字延迟（中位数）</div>
+      <div class="right">AURA ONE</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 3 · 特性三点（大留白横排）
+       ============================================================ -->
+  <section class="slide" data-layout="features">
+    <div class="glow g-white" style="width: 46vw; height: 46vw; left: 50%; top: -18vw; transform: translateX(-50%);"></div>
+
+    <div class="slide-head">
+      <div class="page-no">03 / 06</div>
+      <div class="deck-meta">WHAT'S NEW</div>
+      <div class="section-label">CAPABILITIES</div>
+    </div>
+
+    <div class="stage center-y" style="gap: var(--sp-7);">
+      <h2 class="h-xl" data-anim data-delay="1" style="max-width: 18ch;">三件事，重新定义随身智能。</h2>
+      <div class="features">
+        <div class="feature" data-anim data-delay="2">
+          <div class="f-rule"></div>
+          <div class="f-index">01</div>
+          <div class="f-title">本地优先</div>
+          <div class="f-desc">核心模型常驻端侧，断网也能听懂你，数据不出设备。</div>
+        </div>
+        <div class="feature" data-anim data-delay="3">
+          <div class="f-rule"></div>
+          <div class="f-index">02</div>
+          <div class="f-title">全天候续航</div>
+          <div class="f-desc">一次充电，撑过你醒着的每一个小时，无需中途惦记。</div>
+        </div>
+        <div class="feature" data-anim data-delay="4">
+          <div class="f-rule"></div>
+          <div class="f-index">03</div>
+          <div class="f-title">自然交互</div>
+          <div class="f-desc">无屏、无按键，只需开口。它在场，但从不抢戏。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">03</div>
+      <div class="center">三大核心能力</div>
+      <div class="right">AURA ONE</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 4 · 对比 / before-after
+       ============================================================ -->
+  <section class="slide" data-layout="compare">
+    <div class="glow g-accent" style="width: 40vw; height: 40vw; right: 6vw; bottom: -16vw;"></div>
+
+    <div class="slide-head">
+      <div class="page-no">04 / 06</div>
+      <div class="deck-meta">BEFORE / AFTER</div>
+      <div class="section-label">THE LEAP</div>
+    </div>
+
+    <div class="stage center-y" style="gap: var(--sp-6);">
+      <h2 class="h-xl" data-anim data-delay="1" style="max-width: 20ch;">同样一句话，两个时代的距离。</h2>
+      <div class="compare">
+        <div class="side before" data-anim data-delay="2">
+          <div class="tag">上一代</div>
+          <div class="big">2.4<span class="unit" style="font-size:0.34em;font-weight:700;"> 秒</span></div>
+          <div class="cap">云端往返，需联网，偶有卡顿。</div>
+        </div>
+        <div class="divider"></div>
+        <div class="side after" data-anim data-delay="3">
+          <div class="tag">Aura One</div>
+          <div class="big">0.18<span class="unit" style="font-size:0.34em;font-weight:700;"> 秒</span></div>
+          <div class="cap">端侧即答，离线可用，张口即来。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">04</div>
+      <div class="center">同一指令下的响应时间对比</div>
+      <div class="right">AURA ONE</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 5 · 大引述（一页一句重锤，居中）
+       ============================================================ -->
+  <section class="slide paper" data-layout="quote">
+    <div class="glow g-accent" style="width: 30vw; height: 30vw; left: 2vw; bottom: 4vh; opacity: 0.14;"></div>
+
+    <div class="slide-head">
+      <div class="page-no">05 / 06</div>
+      <div class="deck-meta">DESIGN PHILOSOPHY</div>
+      <div class="section-label">MANIFESTO</div>
+    </div>
+
+    <div class="stage center-y">
+      <div class="eyebrow" data-anim data-delay="1">我们相信</div>
+      <blockquote class="h-hero" data-anim data-delay="2" style="margin-top: var(--sp-4); max-width: 16ch; line-height: 1.28;">
+        最好的技术，<br><span class="accent">让你忘了它的存在。</span>
+      </blockquote>
+      <div class="lead" data-anim data-delay="3" style="margin-top: var(--sp-5);">
+        — Aura 产品团队
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">05</div>
+      <div class="center"></div>
+      <div class="right">AURA ONE</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 6 · 收尾 CTA
+       ============================================================ -->
+  <section class="slide" data-layout="cta">
+    <div class="glow g-accent" style="width: 60vw; height: 60vw; left: 50%; bottom: -30vw; transform: translateX(-50%);"></div>
+
+    <div class="slide-head">
+      <div class="page-no">06 / 06</div>
+      <div class="deck-meta">AVAILABLE NOW</div>
+      <div class="section-label">GET YOURS</div>
+    </div>
+
+    <div class="stage center-y">
+      <div class="eyebrow" data-anim data-delay="1">今日开启预订</div>
+      <h2 class="h-mega" data-anim data-delay="2" style="margin-top: var(--sp-3); font-size: var(--t-hero);">
+        让 AI，<br>真正随身。
+      </h2>
+      <p class="lead" data-anim data-delay="3" style="margin-top: var(--sp-4); max-width: 30ch;">
+        前往 <span class="accent">aura.ai/one</span> 预订，首批将于本季度内发货。
+      </p>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">END</div>
+      <div class="center">aura.ai/one</div>
+      <div class="right">AURA ONE · 2026</div>
+    </div>
+  </section>
+
+</div>
+
+<div id="hud">← → 翻页 · ESC 索引 · B 静态 · F 全屏</div>
+
+<div id="overview">
+  <h3>Slide Index</h3>
+  <div class="ov-grid" id="ov-grid"></div>
+</div>
+
+<script>
+  // ============================================================
+  // 低功耗模式（B 键 / prefers-reduced-motion）— 复用咨询模板逻辑
+  // ============================================================
+  (function() {
+    const KEY = 'alanppt-low-power';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stored = localStorage.getItem(KEY);
+    const initial = stored === '1' || (stored === null && reduced);
+    if (initial) document.body.classList.add('low-power');
+    window.__toggleLowPower = function() {
+      const on = document.body.classList.toggle('low-power');
+      localStorage.setItem(KEY, on ? '1' : '0');
+      document.getElementById('hud').textContent =
+        on ? '← → 翻页 · ESC 索引 · B 动态 · F 全屏' : '← → 翻页 · ESC 索引 · B 静态 · F 全屏';
+    };
+  })();
+
+  // ============================================================
+  // 翻页系统（复用咨询模板）
+  // ============================================================
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let current = 0;
+
+  function show(idx) {
+    if (idx < 0 || idx >= slides.length) return;
+    slides[current].classList.remove('active');
+    current = idx;
+    slides[current].classList.add('active');
+    document.body.classList.toggle('on-paper', slides[current].classList.contains('paper'));
+    history.replaceState(null, '', '#' + (idx + 1));
+  }
+  function next() { show(Math.min(current + 1, slides.length - 1)); }
+  function prev() { show(Math.max(current - 1, 0)); }
+
+  const hash = parseInt(location.hash.replace('#', ''), 10);
+  show(isNaN(hash) ? 0 : Math.max(0, Math.min(hash - 1, slides.length - 1)));
+
+  // ============================================================
+  // 键盘 / 滚轮 / 触屏（复用咨询模板）
+  // ============================================================
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea')) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown': case 'j': case 'k': next(); e.preventDefault(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'h': prev(); e.preventDefault(); break;
+      case 'Home': show(0); break;
+      case 'End': show(slides.length - 1); break;
+      case 'Escape': toggleOverview(); break;
+      case 'b': case 'B': window.__toggleLowPower(); break;
+      case 'f': case 'F':
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen();
+        break;
+      default:
+        const num = parseInt(e.key, 10);
+        if (!isNaN(num) && num >= 1 && num <= 9) show(num - 1);
+    }
+  });
+
+  let wheelLock = false;
+  document.addEventListener('wheel', (e) => {
+    if (wheelLock || Math.abs(e.deltaY) < 30) return;
+    wheelLock = true;
+    if (e.deltaY > 0) next(); else prev();
+    setTimeout(() => { wheelLock = false; }, 500);
+  }, { passive: true });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { if (dx < 0) next(); else prev(); }
+  });
+
+  // ============================================================
+  // ESC 索引页（缩略图网格）— 复用咨询模板
+  // ============================================================
+  const overview = document.getElementById('overview');
+  const ovGrid = document.getElementById('ov-grid');
+
+  function buildOverview() {
+    ovGrid.innerHTML = '';
+    slides.forEach((slide, i) => {
+      const card = document.createElement('div');
+      card.className = 'ov-card';
+      const num = document.createElement('div');
+      num.className = 'ov-num';
+      num.textContent = String(i + 1).padStart(2, '0');
+      card.appendChild(num);
+
+      const thumb = document.createElement('div');
+      thumb.className = 'ov-thumb';
+      const clone = slide.cloneNode(true);
+      clone.classList.add('active');
+      clone.style.opacity = '1';
+      clone.style.visibility = 'visible';
+      clone.style.position = 'relative';
+      clone.style.transition = 'none';
+      clone.querySelectorAll('[data-anim], [data-anim-num], .glow').forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        el.style.filter = 'none';
+      });
+      thumb.appendChild(clone);
+      card.appendChild(thumb);
+
+      card.addEventListener('click', () => { show(i); toggleOverview(); });
+      ovGrid.appendChild(card);
+    });
+  }
+
+  function toggleOverview() {
+    if (overview.classList.contains('show')) {
+      overview.classList.remove('show');
+    } else {
+      buildOverview();
+      overview.classList.add('show');
+    }
+  }
+</script>
+
+</body>
+</html>

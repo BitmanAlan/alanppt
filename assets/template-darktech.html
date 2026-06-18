@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[必填] 替换为 Deck 标题 · Dark-tech</title>
+<!-- =============================================================
+     alanppt · 身份 D · Dark-tech 玻璃风（Ethereal Glass）
+     配方一句话：最深 OLED 黑 #050505 + 低透明度径向 mesh 光晕(幽蓝/翡翠 orb)
+       + 纯白/10 hairline + 高亮白文字；几何 Grotesk + mono 数据；
+       双层嵌套卡 Doppelrand；backdrop-blur 玻璃卡(仅固定元素)；细网格背景；
+       不对称 Bento + eyebrow pill + macro 间距；GPU 安全只动 transform/opacity。
+     灵感：Linear · Vercel · high-end「Ethereal Glass」。
+     骨架复用 template-consulting.html（#deck/翻页/键盘/ESC 索引/HUD），仅换视觉系统。
+     完整配方见 references/design-identities.md（D 那节）。
+     ============================================================= -->
+<!-- 离线优先：可选 @import 最多 1 个（Geist），断网时系统几何字体兜底。 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* 可选单条 @import：Geist（几何 Grotesk）。断网失败也有系统兜底，不阻塞渲染。 */
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    /* ---------- 配色（OLED 黑 + mesh orb + white/alpha 层级，不允许暖色） ---------- */
+    --void:        #050505;     /* 最深 OLED 黑底 */
+    --void-2:      #0a0b0e;     /* 略提亮的次底 */
+    --ink:         #f6f7f9;     /* 高亮白主文字 */
+    --ink-soft:    rgba(246,247,249,0.72);  /* 次要文字 */
+    --ink-mute:    rgba(246,247,249,0.46);  /* 说明 / meta */
+    --ink-faint:   rgba(246,247,249,0.28);  /* 极弱 */
+
+    /* hairline / 玻璃层（纯白低透明度，绝不用灰色硬边） */
+    --line:        rgba(255,255,255,0.10);  /* 标准 hairline */
+    --line-soft:   rgba(255,255,255,0.06);  /* 更弱 */
+    --line-strong: rgba(255,255,255,0.16);  /* 加重 */
+    --glass:       rgba(255,255,255,0.055); /* 玻璃外壳填充（略提亮以拉开与内核的层差） */
+    --glass-2:     rgba(8,9,12,0.55);        /* 内核填充：更深，与外壳形成可见二层对比 */
+    --inset-hi:    rgba(255,255,255,0.14);   /* 内核 inset 顶部高光线 */
+
+    /* mesh orb 强调色（幽蓝 / 翡翠 / 紫罗兰——克制，不是 AI 默认紫渐变文字） */
+    --orb-blue:    rgba(56,124,255,0.30);   /* 幽蓝 */
+    --orb-emerald: rgba(16,210,160,0.22);   /* 翡翠 */
+    --orb-violet:  rgba(122,92,255,0.18);   /* 紫罗兰（点缀） */
+    --accent:      #5b8cff;     /* 单一品牌强调（幽蓝），用于 pill/数字 hi */
+    --accent-2:    #18d2a0;     /* 翡翠次强调，状态/对比 */
+    --accent-soft: rgba(91,140,255,0.14);
+
+    /* ---------- 字体（离线优先：Geist 系几何 Grotesk + 系统兜底；mono = JetBrains） ---------- */
+    --sans:  "Geist", "Clash Display", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", sans-serif;
+    --mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    /* ---------- 字号层级（vw 自适应 16:9 屏） ---------- */
+    --t-meta:    min(0.78vw, 11.5px);
+    --t-cat:     min(0.84vw, 13px);
+    --t-foot:    min(0.84vw, 13px);
+    --t-body:    min(1.05vw, 16px);
+    --t-lead:    min(1.28vw, 20px);
+    --t-md:      min(1.55vw, 24px);
+    --t-xl:      min(2.3vw, 38px);
+    --t-hero:    min(3.3vw, 52px);
+    --t-statement: min(5.6vw, 92px);
+    --t-num:     min(4.8vw, 76px);
+    --t-num-mega: min(8.5vw, 136px);
+
+    /* ---------- spacing token（8px 基线，vh 自适应；macro 间距偏大） ---------- */
+    --sp-1: 0.5vh; --sp-2: 1vh; --sp-3: 1.5vh; --sp-4: 2vh; --sp-5: 3vh;
+    --sp-6: 4vh;  --sp-7: 6vh;  --sp-8: 8vh;  --sp-9: 12vh; --sp-10: 16vh;
+
+    /* 圆角（D 用大圆角；双层卡同心圆角：外大内略小） */
+    --r-shell: 22px;
+    --r-core:  16px;
+    --r-pill:  999px;
+
+    /* ---------- 动效缓动（弹簧物理感） ---------- */
+    --ease:  cubic-bezier(0.32, 0.72, 0, 1);   /* 弹簧出 */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --d-fast: 220ms; --d-base: 460ms; --d-slow: 720ms;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: var(--sans);
+    font-size: var(--t-body);
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--void);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.55;
+    font-feature-settings: "ss01", "cv01", "tnum";
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+
+  /* =============================================================
+     固定背景层：细网格 + 径向 mesh 光晕 + noise（pointer-events:none）
+     这些是 fixed、不随滚动重绘的大区域；blur 不加在这里。
+     ============================================================= */
+  .bg-fixed {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+  /* 细网格背景 */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 120% 90% at 50% 40%, #000 35%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 120% 90% at 50% 40%, #000 35%, transparent 80%);
+  }
+  /* 径向 mesh 光晕 orb（每页可换位置；默认封面布局） */
+  .bg-mesh {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(50vw 50vw at 28% 34%, var(--orb-blue),    transparent 60%),
+      radial-gradient(46vw 46vw at 82% 70%, var(--orb-emerald), transparent 62%),
+      radial-gradient(34vw 34vw at 64% 8%,  var(--orb-violet),  transparent 60%);
+    filter: saturate(1.05);
+    opacity: 0.92;
+  }
+  /* per-slide 局部光晕：让 mesh 参与构图而非只贴角（GPU 安全，纯渐变） */
+  .slide .glow {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  }
+  .glow.hero {
+    background: radial-gradient(40vw 32vw at 30% 42%, rgba(91,140,255,0.16), transparent 60%);
+  }
+  /* noise 颗粒（SVG 内联，极弱，做玻璃质感的"磨砂"层） */
+  .bg-noise {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* =============================================================
+     deck 容器 + 翻页
+     ============================================================= */
+  #deck { position: relative; width: 100%; height: 100%; overflow: hidden; z-index: 2; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: grid; grid-template-rows: auto 1fr auto;
+    row-gap: var(--sp-4);
+    padding: 6vh 6.5vw 4vh;          /* macro 版边，正文不顶边 */
+    opacity: 0; visibility: hidden;
+    transition: opacity var(--d-base) var(--ease);
+  }
+  .slide.active { opacity: 1; visibility: visible; }
+  .slide > .center-y { align-self: center; }
+  .body, .lead { max-width: 60ch; }
+  .body.full, .lead.full { max-width: none; }
+
+  /* =============================================================
+     页头 / 页脚（玻璃细带，hairline 用 white/10）
+     ============================================================= */
+  .slide-head {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: var(--sp-5);
+    padding-bottom: var(--sp-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .slide-head .page-no {
+    font-family: var(--mono); font-size: var(--t-cat); font-weight: 500;
+    color: var(--ink); letter-spacing: 0.06em;
+  }
+  .slide-head .deck-meta {
+    font-family: var(--mono); font-size: var(--t-meta);
+    color: var(--ink-mute); letter-spacing: 0.08em;
+  }
+  .slide-head .section-label {
+    font-size: var(--t-meta); font-weight: 600; color: var(--ink-mute);
+    text-transform: uppercase; letter-spacing: 0.22em; text-align: right;
+  }
+
+  .slide-foot {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: end; gap: var(--sp-5);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--line);
+    color: var(--ink-mute); font-size: var(--t-foot);
+  }
+  .slide-foot .left, .slide-foot .right {
+    font-family: var(--mono); font-size: var(--t-meta);
+    letter-spacing: 0.08em; color: var(--ink-mute);
+  }
+  .slide-foot .center { text-align: center; color: var(--ink-mute); }
+
+  /* =============================================================
+     字号 helper
+     ============================================================= */
+  .h-hero      { font-size: var(--t-hero);      font-weight: 600; line-height: 1.12; letter-spacing: -0.025em; color: var(--ink); }
+  .h-statement { font-size: var(--t-statement); font-weight: 600; line-height: 1.02; letter-spacing: -0.04em; color: var(--ink); }
+  .h-xl        { font-size: var(--t-xl);        font-weight: 600; line-height: 1.18; letter-spacing: -0.02em; color: var(--ink); }
+  .h-md        { font-size: var(--t-md);        font-weight: 600; line-height: 1.3;  letter-spacing: -0.01em; color: var(--ink); }
+  .lead        { font-size: var(--t-lead);      font-weight: 400; line-height: 1.6;  color: var(--ink-soft); }
+  .body        { font-size: var(--t-body);      font-weight: 400; line-height: 1.62; color: var(--ink-soft); }
+  .muted       { color: var(--ink-mute); }
+  .strong      { color: var(--ink); font-weight: 600; }
+  .accent      { color: var(--accent); }
+  .accent-2    { color: var(--accent-2); }
+
+  .t-cat   { font-size: var(--t-cat); font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: var(--ink-soft); }
+  .t-meta  { font-family: var(--mono); font-size: var(--t-meta); letter-spacing: 0.08em; color: var(--ink-mute); text-transform: uppercase; }
+  .t-foot  { font-size: var(--t-foot); color: var(--ink-mute); }
+  .mono    { font-family: var(--mono); font-feature-settings: "tnum"; }
+
+  /* gradient text 仅用于极克制的 hero 关键词（幽蓝→翡翠，非紫渐变滥用） */
+  .grad {
+    background: linear-gradient(105deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+
+  .num-mega { font-size: var(--t-num-mega); font-weight: 600; line-height: 0.95; font-family: var(--sans); font-feature-settings: "tnum"; letter-spacing: -0.04em; }
+  .num      { font-size: var(--t-num);      font-weight: 600; line-height: 1;    font-family: var(--mono); font-feature-settings: "tnum"; letter-spacing: -0.02em; }
+
+  /* =============================================================
+     eyebrow pill（圆角胶囊标签，玻璃描边 + 小点）
+     ============================================================= */
+  .pill {
+    display: inline-flex; align-items: center; gap: 0.6em;
+    padding: 0.5em 1em; border-radius: var(--r-pill);
+    background: var(--glass); border: 1px solid var(--line);
+    font-size: var(--t-cat); font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-soft);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  .pill.pill-emerald .dot { background: var(--accent-2); box-shadow: 0 0 10px var(--accent-2); }
+
+  /* hairline */
+  .hairline { height: 1px; background: var(--line); width: 100%; }
+
+  /* =============================================================
+     grid 系统（Bento：不对称大小卡错落）
+     ============================================================= */
+  .grid    { display: grid; gap: var(--sp-5); align-content: start; }
+  .grid-12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--sp-5); }
+  .grid-3  { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
+  .grid-4  { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+  .grid-2  { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5); }
+  .grid-2-1{ display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-5); }
+  .grid-1-2{ display: grid; grid-template-columns: 1fr 2fr; gap: var(--sp-5); }
+  /* bento：12 列 + 行高自由 */
+  .bento   { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: minmax(0, 1fr); gap: var(--sp-5); }
+  .col-span-2{grid-column:span 2;} .col-span-3{grid-column:span 3;}
+  .col-span-4{grid-column:span 4;} .col-span-5{grid-column:span 5;}
+  .col-span-6{grid-column:span 6;} .col-span-7{grid-column:span 7;}
+  .col-span-8{grid-column:span 8;} .col-span-9{grid-column:span 9;}
+  .col-span-12{grid-column:span 12;}
+  .row-span-2{grid-row:span 2;}
+
+  /* =============================================================
+     双层嵌套卡（Doppelrand）—— D 身份的招牌机械精密感
+     外壳 bg-white/5 + ring white/10 + 大圆角；
+     内核 inset 顶部高光 + 略小同心圆角 + 更弱填充。
+     注意：这是滚动区域内的卡，不加 backdrop-blur（性能 + 配方禁令）。
+     ============================================================= */
+  .card {
+    position: relative;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    border-radius: var(--r-shell);
+    padding: 8px;                         /* 外壳留出内核同心边 */
+    overflow: hidden;
+  }
+  /* 外壳顶部一道极弱高光，模拟玻璃边缘受光 */
+  .card::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 30%);
+    pointer-events: none;
+  }
+  .card-core {
+    position: relative;
+    height: 100%;
+    background: var(--glass-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-core);
+    padding: var(--sp-6) var(--sp-6);
+    display: grid; gap: var(--sp-3); align-content: start;
+    /* 内核 inset 高光：顶部一线 + 凹陷内阴影做玻璃凹槽感（不是硬黑投影） */
+    box-shadow:
+      inset 0 1px 0 var(--inset-hi),
+      inset 0 -1px 0 rgba(0,0,0,0.4),
+      inset 0 0 50px rgba(0,0,0,0.35);
+  }
+  /* 内核顶缘一条更亮的受光高光线，强化"机械精密"的二层边缘 */
+  .card-core::after {
+    content: ""; position: absolute; left: 12%; right: 12%; top: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    pointer-events: none;
+  }
+  .card-core.center-content { align-content: center; }
+
+  /* 卡内元素 */
+  .card .ico {
+    width: 2.6em; height: 2.6em; border-radius: 12px;
+    display: grid; place-items: center;
+    background: var(--accent-soft); border: 1px solid var(--line);
+    color: var(--accent); font-family: var(--mono); font-size: var(--t-md); font-weight: 600;
+  }
+  .card .ico.em { background: rgba(24,210,160,0.12); color: var(--accent-2); }
+  .card .card-title { font-size: var(--t-md); font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+  .card .card-text  { font-size: var(--t-body); color: var(--ink-soft); line-height: 1.6; }
+  .card .card-kicker { font-family: var(--mono); font-size: var(--t-meta); letter-spacing: 0.1em; color: var(--ink-mute); text-transform: uppercase; }
+
+  /* 大数字玻璃卡（指标页用） */
+  .stat-core .stat-num { font-family: var(--mono); font-weight: 600; font-size: var(--t-num); line-height: 1; letter-spacing: -0.02em; color: var(--ink); font-feature-settings: "tnum"; }
+  .stat-core .stat-num.hi { color: var(--accent); }
+  .stat-core .stat-num.em { color: var(--accent-2); }
+  .stat-core .stat-label { font-size: var(--t-body); color: var(--ink-soft); margin-top: var(--sp-2); }
+  .stat-core .stat-delta { font-family: var(--mono); font-size: var(--t-meta); color: var(--accent-2); letter-spacing: 0.06em; }
+
+  /* =============================================================
+     流程 / 架构 步骤链（玻璃节点 + 连接 hairline）
+     ============================================================= */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); align-items: stretch; position: relative; }
+  .flow-node {
+    position: relative; background: var(--glass); border: 1px solid var(--line);
+    border-radius: var(--r-core); padding: var(--sp-5) var(--sp-5);
+    display: grid; gap: var(--sp-2); align-content: start;
+    box-shadow: inset 0 1px 0 var(--inset-hi), inset 0 0 40px rgba(0,0,0,0.22);
+  }
+  .flow-node .step-no { font-family: var(--mono); font-size: var(--t-meta); color: var(--accent); letter-spacing: 0.12em; }
+  .flow-node .step-title { font-size: var(--t-md); font-weight: 600; color: var(--ink); }
+  .flow-node .step-text { font-size: var(--t-body); color: var(--ink-soft); line-height: 1.55; }
+  /* 节点间连接箭头（hairline + 小三角，纯 CSS） */
+  .flow-node:not(:last-child)::after {
+    content: ""; position: absolute; right: calc(var(--sp-4) * -1 - 1px); top: 50%;
+    width: var(--sp-4); height: 1px; background: var(--line-strong);
+    transform: translateY(-50%);
+  }
+
+  /* 架构层带（堆叠的玻璃横条） */
+  .arch { display: grid; gap: var(--sp-3); }
+  .arch-layer {
+    display: grid; grid-template-columns: 11em 1fr auto; align-items: center; gap: var(--sp-5);
+    background: var(--glass); border: 1px solid var(--line); border-radius: var(--r-core);
+    padding: var(--sp-4) var(--sp-5); box-shadow: inset 0 1px 0 var(--inset-hi);
+  }
+  .arch-layer .layer-name { font-size: var(--t-md); font-weight: 600; color: var(--ink); }
+  .arch-layer .layer-name .layer-tag { display: block; font-family: var(--mono); font-size: var(--t-meta); color: var(--accent); letter-spacing: 0.1em; margin-bottom: 2px; }
+  .arch-layer .layer-desc { font-size: var(--t-body); color: var(--ink-soft); }
+  .arch-layer .layer-chips { display: flex; gap: 0.5em; flex-wrap: wrap; justify-content: flex-end; }
+  .chip {
+    font-family: var(--mono); font-size: var(--t-meta); letter-spacing: 0.04em;
+    padding: 0.35em 0.7em; border-radius: 8px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--line); color: var(--ink-soft);
+  }
+
+  /* =============================================================
+     对比表（玻璃双列）
+     ============================================================= */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5); }
+  .vs-col { position: relative; background: var(--glass); border: 1px solid var(--line); border-radius: var(--r-shell); padding: 8px; overflow: hidden; }
+  .vs-col::before { content:""; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(180deg,rgba(255,255,255,0.06),transparent 28%); pointer-events:none; }
+  .vs-inner { background: var(--glass-2); border: 1px solid var(--line); border-radius: var(--r-core); padding: var(--sp-6); box-shadow: inset 0 1px 0 var(--inset-hi), inset 0 0 50px rgba(0,0,0,0.32); height: 100%; display: grid; gap: var(--sp-4); align-content: start; }
+  /* 推荐列：翡翠内辉笼罩整列 + 描边提亮，明确引导选择 */
+  .vs-col.hot .vs-inner { box-shadow: inset 0 1px 0 rgba(24,210,160,0.4), inset 0 0 90px rgba(24,210,160,0.12); border-color: rgba(24,210,160,0.30); background: rgba(24,210,160,0.05); }
+  .vs-head { display: flex; align-items: center; justify-content: space-between; }
+  .vs-head .vs-title { font-size: var(--t-md); font-weight: 600; color: var(--ink); }
+  .vs-row { display: grid; grid-template-columns: auto 1fr; gap: 0.7em; align-items: start; font-size: var(--t-body); color: var(--ink-soft); line-height: 1.5; }
+  .vs-row .mk { font-family: var(--mono); color: var(--ink-mute); }
+  .vs-row.good .mk { color: var(--accent-2); }
+  .vs-row.bad  .mk { color: var(--ink-faint); }
+
+  /* =============================================================
+     ESC 索引 overlay
+     ============================================================= */
+  #overview {
+    position: fixed; inset: 0;
+    background: rgba(5,5,6,0.92);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    z-index: 100; display: none; overflow: auto; padding: 5vh 5vw;
+  }
+  #overview.show { display: block; }
+  #overview h3 { color: var(--ink); font-size: var(--t-md); font-weight: 600; margin-bottom: 3vh; letter-spacing: 0.16em; text-transform: uppercase; }
+  #overview .ov-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4vh 2vw; }
+  #overview .ov-card { background: var(--void-2); border: 1px solid var(--line); border-radius: 14px; aspect-ratio: 16/9; cursor: pointer; position: relative; overflow: hidden; transition: transform var(--d-fast) var(--ease); }
+  #overview .ov-card:hover { transform: translateY(-4px); border-color: var(--line-strong); }
+  #overview .ov-card .ov-thumb { position: absolute; inset: 0; transform: scale(0.25); transform-origin: top left; width: 400%; height: 400%; pointer-events: none; }
+  #overview .ov-card .ov-num { position: absolute; top: 8px; left: 12px; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--ink-soft); background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 6px; z-index: 2; }
+
+  /* =============================================================
+     HUD
+     ============================================================= */
+  #hud {
+    position: fixed; bottom: 1.8vh; right: 1.8vw;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.08em;
+    z-index: 50; user-select: none;
+    background: rgba(255,255,255,0.05); padding: 7px 13px;
+    border: 1px solid var(--line); border-radius: var(--r-pill);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* =============================================================
+     入场动效（弹簧物理 · 错峰揭示 · blur-up）GPU 安全：只动 transform/opacity/filter
+     ============================================================= */
+  [data-anim] { opacity: 0; transform: translateY(14px); filter: blur(6px); transition: opacity var(--d-base) var(--ease), transform var(--d-base) var(--ease-spring), filter var(--d-base) var(--ease); }
+  .slide.active [data-anim] { opacity: 1; transform: translateY(0); filter: blur(0); }
+  .slide.active [data-anim][data-delay="1"] { transition-delay: 80ms; }
+  .slide.active [data-anim][data-delay="2"] { transition-delay: 170ms; }
+  .slide.active [data-anim][data-delay="3"] { transition-delay: 260ms; }
+  .slide.active [data-anim][data-delay="4"] { transition-delay: 350ms; }
+  .slide.active [data-anim][data-delay="5"] { transition-delay: 440ms; }
+  .slide.active [data-anim][data-delay="6"] { transition-delay: 530ms; }
+  .slide.active [data-anim][data-delay="7"] { transition-delay: 620ms; }
+
+  [data-anim-num] { opacity: 0; transform: scale(0.9); transition: opacity var(--d-slow) var(--ease), transform var(--d-slow) var(--ease-spring); }
+  .slide.active [data-anim-num] { opacity: 1; transform: scale(1); }
+
+  body.low-power [data-anim], body.low-power [data-anim-num] { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  body.low-power .slide { transition: none !important; }
+
+  @media print {
+    html, body { overflow: visible; height: auto; }
+    #deck { height: auto; }
+    .slide { position: relative; inset: auto; opacity: 1 !important; visibility: visible !important; page-break-after: always; height: 100vh; }
+    #hud, #overview { display: none !important; }
+    [data-anim], [data-anim-num] { opacity: 1 !important; transform: none !important; filter: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 固定背景层（pointer-events:none，不随滚动重绘） -->
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+
+<div id="deck">
+
+  <!-- ============================================================
+       SLIDE 1 · 封面（产品名 + eyebrow pill + mesh 光晕）
+       ============================================================ -->
+  <section class="slide" data-layout="cover">
+    <div class="glow hero"></div>
+    <div class="slide-head">
+      <div class="page-no">01 / 06</div>
+      <div class="deck-meta">PRODUCT BRIEF · v2.6</div>
+      <div class="section-label">AURORA AI PLATFORM</div>
+    </div>
+
+    <div class="grid center-y" style="gap: var(--sp-6); max-width: 92%;">
+      <div data-anim data-delay="1"><span class="pill"><span class="dot"></span>AI INFRASTRUCTURE · 2026</span></div>
+      <h1 class="h-statement" data-anim data-delay="2">
+        Aurora<br><span class="grad">智能体运行时</span>
+      </h1>
+      <p class="lead" data-anim data-delay="3" style="max-width: 46ch;">
+        把模型、检索、工具与编排收敛到一个运行时。让团队用一套 API 构建、评测、上线自治智能体——从原型到生产，只需一次部署。
+      </p>
+      <div class="grid grid-3" style="border-top: 1px solid var(--line); padding-top: var(--sp-5); margin-top: var(--sp-3); max-width: 760px;" data-anim data-delay="4">
+        <div><div class="t-meta">形态</div><div class="h-md" style="margin-top:4px;">Serverless Runtime</div></div>
+        <div><div class="t-meta">延迟</div><div class="h-md mono" style="margin-top:4px;">≤ 40ms p50</div></div>
+        <div><div class="t-meta">发布</div><div class="h-md mono" style="margin-top:4px;">2026.06</div></div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">CONFIDENTIAL</div>
+      <div class="center"></div>
+      <div class="right">← → 翻页 · ESC 索引 · B 静态 · F 全屏</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 2 · 核心能力 Bento（双层嵌套卡 Doppelrand · 不对称）
+       ============================================================ -->
+  <section class="slide" data-layout="capabilities">
+    <div class="slide-head">
+      <div class="page-no">02 / 06</div>
+      <div class="deck-meta">CORE CAPABILITIES</div>
+      <div class="section-label">AURORA AI PLATFORM</div>
+    </div>
+
+    <div class="grid" style="grid-template-rows: auto 1fr; gap: var(--sp-5);">
+      <div data-anim>
+        <span class="pill"><span class="dot"></span>WHAT IT DOES</span>
+        <h2 class="h-hero" style="margin-top: var(--sp-3);">一个运行时，覆盖智能体全生命周期</h2>
+      </div>
+
+      <div class="bento" style="grid-template-rows: 1fr 1fr;">
+        <!-- 大卡：跨两行 -->
+        <div class="card col-span-5 row-span-2" data-anim data-delay="1">
+          <div class="card-core" style="align-content: space-between;">
+            <div style="display: grid; gap: var(--sp-3);">
+              <div class="ico">⌘</div>
+              <div class="card-kicker">ORCHESTRATION</div>
+              <div class="card-title">声明式编排引擎</div>
+              <div class="card-text">用图描述多智能体协作：分支、并发、人审回路与失败重试全部内建。运行时按依赖自动调度，不必手写状态机。</div>
+            </div>
+            <div style="display: grid; gap: var(--sp-3);">
+              <div class="hairline"></div>
+              <div class="card-text mono accent" style="font-size: var(--t-cat); background: rgba(0,0,0,0.4); border:1px solid var(--line); border-radius:10px; padding: 0.7em 0.9em;">graph.run(agents, policy)</div>
+            </div>
+          </div>
+        </div>
+        <!-- 三张小卡 -->
+        <div class="card col-span-4" data-anim data-delay="2">
+          <div class="card-core">
+            <div class="card-kicker">RETRIEVAL</div>
+            <div class="card-title">统一检索层</div>
+            <div class="card-text">向量、全文与结构化查询同一接口，毫秒级混合召回。</div>
+          </div>
+        </div>
+        <div class="card col-span-3" data-anim data-delay="3">
+          <div class="card-core">
+            <div class="ico em">⊞</div>
+            <div class="card-title">工具网关</div>
+            <div class="card-text">200+ 预置工具，OAuth 托管。</div>
+          </div>
+        </div>
+        <div class="card col-span-4" data-anim data-delay="4">
+          <div class="card-core">
+            <div class="card-kicker">EVALS</div>
+            <div class="card-title">在线评测回路</div>
+            <div class="card-text">影子流量 + 对抗 critic，回归不靠人肉巡检。</div>
+          </div>
+        </div>
+        <div class="card col-span-3" data-anim data-delay="5">
+          <div class="card-core center-content">
+            <div class="card-kicker">OBSERVABILITY</div>
+            <div class="card-title">全链路追踪</div>
+            <div class="card-text">每一次调用可回放。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">02 · CAPABILITIES</div>
+      <div class="center">编排 · 检索 · 工具 · 评测 · 观测</div>
+      <div class="right">AURORA</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 3 · 架构 / 流程（玻璃层带 + 步骤链）
+       ============================================================ -->
+  <section class="slide" data-layout="architecture">
+    <div class="slide-head">
+      <div class="page-no">03 / 06</div>
+      <div class="deck-meta">SYSTEM ARCHITECTURE</div>
+      <div class="section-label">AURORA AI PLATFORM</div>
+    </div>
+
+    <div class="grid center-y" style="gap: var(--sp-6);">
+      <div data-anim>
+        <span class="pill"><span class="dot"></span>HOW IT WORKS</span>
+        <h2 class="h-hero" style="margin-top: var(--sp-3);">四层分离，每一层都可独立替换</h2>
+      </div>
+
+      <!-- 请求流程链 -->
+      <div class="flow" data-anim data-delay="1">
+        <div class="flow-node">
+          <div class="step-no">01 · INGEST</div>
+          <div class="step-title">请求接入</div>
+          <div class="step-text">统一网关鉴权、限流、计费打点。</div>
+        </div>
+        <div class="flow-node">
+          <div class="step-no">02 · PLAN</div>
+          <div class="step-title">规划编排</div>
+          <div class="step-text">编排引擎生成执行图并调度智能体。</div>
+        </div>
+        <div class="flow-node">
+          <div class="step-no">03 · ACT</div>
+          <div class="step-title">检索与工具</div>
+          <div class="step-text">混合检索 + 工具网关供给上下文。</div>
+        </div>
+        <div class="flow-node">
+          <div class="step-no">04 · VERIFY</div>
+          <div class="step-title">评测回写</div>
+          <div class="step-text">在线 critic 评分并回写追踪。</div>
+        </div>
+      </div>
+
+      <!-- 架构层带 -->
+      <div class="arch" data-anim data-delay="3">
+        <div class="arch-layer">
+          <div class="layer-name"><span class="layer-tag">L4 · CONTROL</span>编排控制面</div>
+          <div class="layer-desc">声明式图调度、策略与人审回路</div>
+          <div class="layer-chips"><span class="chip">DAG</span><span class="chip">Policy</span><span class="chip">HITL</span></div>
+        </div>
+        <div class="arch-layer">
+          <div class="layer-name"><span class="layer-tag">L3 · REASONING</span>模型推理层</div>
+          <div class="layer-desc">多模型路由、缓存与流式输出</div>
+          <div class="layer-chips"><span class="chip">Router</span><span class="chip">KV-Cache</span><span class="chip">Stream</span></div>
+        </div>
+        <div class="arch-layer">
+          <div class="layer-name"><span class="layer-tag">L2 · CONTEXT</span>检索与工具</div>
+          <div class="layer-desc">混合检索 + 托管工具网关</div>
+          <div class="layer-chips"><span class="chip">Hybrid RAG</span><span class="chip">Tool GW</span></div>
+        </div>
+        <div class="arch-layer">
+          <div class="layer-name"><span class="layer-tag">L1 · DATA</span>数据与存储</div>
+          <div class="layer-desc">向量 / 对象 / 事件流统一持久化</div>
+          <div class="layer-chips"><span class="chip">Vector</span><span class="chip">Object</span><span class="chip">Stream</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">03 · ARCHITECTURE</div>
+      <div class="center">控制 → 推理 → 检索 → 数据</div>
+      <div class="right">AURORA</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 4 · 指标（mono 大数字玻璃卡）
+       ============================================================ -->
+  <section class="slide" data-layout="metrics">
+    <div class="slide-head">
+      <div class="page-no">04 / 06</div>
+      <div class="deck-meta">PERFORMANCE</div>
+      <div class="section-label">AURORA AI PLATFORM</div>
+    </div>
+
+    <div class="grid center-y" style="gap: var(--sp-6);">
+      <div data-anim>
+        <span class="pill pill-emerald"><span class="dot"></span>BENCHMARK · INTERNAL</span>
+        <h2 class="h-hero" style="margin-top: var(--sp-3);">生产负载下的真实数字</h2>
+      </div>
+
+      <div class="grid-4">
+        <div class="card" data-anim data-delay="1">
+          <div class="card-core stat-core">
+            <div class="stat-num hi" data-anim-num>40<span style="font-size:0.4em; color:var(--ink-mute);">ms</span></div>
+            <div class="stat-label">编排调度 p50 延迟</div>
+            <div class="stat-delta">↓ 3.2x vs 自建</div>
+          </div>
+        </div>
+        <div class="card" data-anim data-delay="2">
+          <div class="card-core stat-core">
+            <div class="stat-num" data-anim-num>99.95<span style="font-size:0.4em; color:var(--ink-mute);">%</span></div>
+            <div class="stat-label">运行时可用性 SLA</div>
+            <div class="stat-delta">12 mo trailing</div>
+          </div>
+        </div>
+        <div class="card" data-anim data-delay="3">
+          <div class="card-core stat-core">
+            <div class="stat-num em" data-anim-num>200<span style="font-size:0.4em; color:var(--ink-mute);">+</span></div>
+            <div class="stat-label">预置托管工具</div>
+            <div class="stat-delta">OAuth 全托管</div>
+          </div>
+        </div>
+        <div class="card" data-anim data-delay="4">
+          <div class="card-core stat-core">
+            <div class="stat-num hi" data-anim-num>14<span style="font-size:0.4em; color:var(--ink-mute);">天</span></div>
+            <div class="stat-label">原型到生产中位时长</div>
+            <div class="stat-delta">↓ 从 90 天</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-anim data-delay="5">
+        <div class="card-core" style="grid-template-columns: auto 1px 1fr; display: grid; gap: var(--sp-6); align-items: center;">
+          <div class="num grad" style="font-size: var(--t-num-mega); line-height: 1;">3.2×</div>
+          <div style="align-self: stretch; background: var(--line);"></div>
+          <div style="display: grid; gap: var(--sp-2);">
+            <div class="card-title">单位推理成本下降</div>
+            <div class="card-text" style="max-width: 56ch;">通过模型路由、KV 缓存复用与影子评测剪枝，在同等质量下把每百万 token 的端到端成本压到自建方案的三分之一。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">04 · METRICS</div>
+      <div class="center">数据基于 2026 Q1 内部生产负载</div>
+      <div class="right">AURORA</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 5 · 对比（玻璃双列 vs）
+       ============================================================ -->
+  <section class="slide" data-layout="comparison">
+    <div class="slide-head">
+      <div class="page-no">05 / 06</div>
+      <div class="deck-meta">WHY AURORA</div>
+      <div class="section-label">AURORA AI PLATFORM</div>
+    </div>
+
+    <div class="grid center-y" style="gap: var(--sp-6);">
+      <div data-anim>
+        <span class="pill"><span class="dot"></span>BEFORE / AFTER</span>
+        <h2 class="h-hero" style="margin-top: var(--sp-3); max-width: 22ch;">自己拼装一套栈，<br>还是直接用一个运行时</h2>
+      </div>
+
+      <div class="vs" style="align-items: stretch;">
+        <div class="vs-col" data-anim data-delay="1">
+          <div class="vs-inner">
+            <div class="vs-head">
+              <div class="vs-title muted">自建拼装栈</div>
+              <span class="chip" style="color: var(--ink-faint);">STATUS QUO</span>
+            </div>
+            <div class="vs-row bad"><span class="mk">✕</span><span>模型、向量库、工具、评测各自为政，胶水代码占工程量七成。</span></div>
+            <div class="vs-row bad"><span class="mk">✕</span><span>上线靠人肉回归，故障定位横跨五个系统。</span></div>
+            <div class="vs-row bad"><span class="mk">✕</span><span>成本不可见，扩容只能拍脑袋加机器。</span></div>
+            <div class="vs-row bad"><span class="mk">✕</span><span>原型到生产 90 天，团队卡在重复造轮子。</span></div>
+          </div>
+        </div>
+        <div class="vs-col hot" data-anim data-delay="2">
+          <div class="vs-inner">
+            <div class="vs-head">
+              <div class="vs-title accent-2">Aurora 运行时</div>
+              <span class="chip" style="color:var(--accent-2); border-color:rgba(24,210,160,0.4); background:rgba(24,210,160,0.10);">● 推荐</span>
+            </div>
+            <div class="vs-row good"><span class="mk">✓</span><span>编排 / 检索 / 工具 / 评测一套 API，胶水代码归零。</span></div>
+            <div class="vs-row good"><span class="mk">✓</span><span>在线 critic + 全链路追踪，回归与定位自动化。</span></div>
+            <div class="vs-row good"><span class="mk">✓</span><span>按调用计费、成本可视，路由自动选最优模型。</span></div>
+            <div class="vs-row good"><span class="mk">✓</span><span>原型到生产中位 14 天，团队专注业务逻辑。</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">05 · COMPARISON</div>
+      <div class="center">少写七成胶水代码，把时间还给业务</div>
+      <div class="right">AURORA</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 6 · 收尾（CTA + mesh 光晕）
+       ============================================================ -->
+  <section class="slide" data-layout="closing">
+    <div class="slide-head">
+      <div class="page-no">06 / 06</div>
+      <div class="deck-meta">GET STARTED</div>
+      <div class="section-label">AURORA AI PLATFORM</div>
+    </div>
+
+    <div class="grid center-y" style="gap: var(--sp-6); max-width: 90%;">
+      <div data-anim data-delay="1"><span class="pill pill-emerald"><span class="dot"></span>SHIP YOUR FIRST AGENT TODAY</span></div>
+      <h2 class="h-statement" data-anim data-delay="2" style="font-size: min(4.6vw, 76px);">
+        从一行 <span class="grad">aurora init</span><br>到生产级智能体
+      </h2>
+      <p class="lead" data-anim data-delay="3" style="max-width: 48ch;">
+        免费层包含每月 100 万次编排调用与全部观测能力。无需信用卡，五分钟跑通第一个评测回路。
+      </p>
+      <div class="grid grid-3" data-anim data-delay="4" style="border-top: 1px solid var(--line); padding-top: var(--sp-5); margin-top: var(--sp-3); max-width: 820px;">
+        <div><div class="t-meta">文档</div><div class="h-md mono" style="margin-top:4px;">docs.aurora.dev</div></div>
+        <div><div class="t-meta">控制台</div><div class="h-md mono" style="margin-top:4px;">app.aurora.dev</div></div>
+        <div><div class="t-meta">联系</div><div class="h-md mono" style="margin-top:4px;">team@aurora.dev</div></div>
+      </div>
+    </div>
+
+    <div class="slide-foot">
+      <div class="left">END</div>
+      <div class="center">Aurora · 智能体运行时</div>
+      <div class="right">2026.06</div>
+    </div>
+  </section>
+
+</div>
+
+<div id="hud">← → 翻页 · ESC 索引 · B 静态 · F 全屏</div>
+
+<div id="overview">
+  <h3>SLIDE INDEX</h3>
+  <div class="ov-grid" id="ov-grid"></div>
+</div>
+
+<script>
+  // ============================================================
+  // 低功耗模式（B 键 / prefers-reduced-motion）
+  // ============================================================
+  (function() {
+    const KEY = 'alanppt-low-power';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stored = localStorage.getItem(KEY);
+    const initial = stored === '1' || (stored === null && reduced);
+    if (initial) document.body.classList.add('low-power');
+    window.__toggleLowPower = function() {
+      const on = document.body.classList.toggle('low-power');
+      localStorage.setItem(KEY, on ? '1' : '0');
+      document.getElementById('hud').textContent =
+        on ? '← → 翻页 · ESC 索引 · B 动态 · F 全屏' : '← → 翻页 · ESC 索引 · B 静态 · F 全屏';
+    };
+  })();
+
+  // ============================================================
+  // 翻页系统
+  // ============================================================
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let current = 0;
+
+  function show(idx) {
+    if (idx < 0 || idx >= slides.length) return;
+    slides[current].classList.remove('active');
+    current = idx;
+    slides[current].classList.add('active');
+    history.replaceState(null, '', '#' + (idx + 1));
+  }
+  function next() { show(Math.min(current + 1, slides.length - 1)); }
+  function prev() { show(Math.max(current - 1, 0)); }
+
+  const hash = parseInt(location.hash.replace('#', ''), 10);
+  show(isNaN(hash) ? 0 : Math.max(0, Math.min(hash - 1, slides.length - 1)));
+
+  // ============================================================
+  // 键盘 / 滚轮 / 触屏
+  // ============================================================
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea')) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown': case 'j': case 'k': next(); e.preventDefault(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'h': prev(); e.preventDefault(); break;
+      case 'Home': show(0); break;
+      case 'End': show(slides.length - 1); break;
+      case 'Escape': toggleOverview(); break;
+      case 'b': case 'B': window.__toggleLowPower(); break;
+      case 'f': case 'F':
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen();
+        break;
+      default:
+        const num = parseInt(e.key, 10);
+        if (!isNaN(num) && num >= 1 && num <= 9) show(num - 1);
+    }
+  });
+
+  let wheelLock = false;
+  document.addEventListener('wheel', (e) => {
+    if (wheelLock || Math.abs(e.deltaY) < 30) return;
+    wheelLock = true;
+    if (e.deltaY > 0) next(); else prev();
+    setTimeout(() => { wheelLock = false; }, 500);
+  }, { passive: true });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { if (dx < 0) next(); else prev(); }
+  });
+
+  // ============================================================
+  // ESC 索引页
+  // ============================================================
+  const overview = document.getElementById('overview');
+  const ovGrid = document.getElementById('ov-grid');
+
+  function buildOverview() {
+    ovGrid.innerHTML = '';
+    slides.forEach((slide, i) => {
+      const card = document.createElement('div');
+      card.className = 'ov-card';
+      const num = document.createElement('div');
+      num.className = 'ov-num';
+      num.textContent = String(i + 1).padStart(2, '0');
+      card.appendChild(num);
+
+      const thumb = document.createElement('div');
+      thumb.className = 'ov-thumb';
+      const clone = slide.cloneNode(true);
+      clone.classList.add('active');
+      clone.style.opacity = '1';
+      clone.style.visibility = 'visible';
+      clone.style.position = 'relative';
+      clone.style.transition = 'none';
+      clone.querySelectorAll('[data-anim], [data-anim-num]').forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        el.style.filter = 'none';
+      });
+      thumb.appendChild(clone);
+      card.appendChild(thumb);
+
+      card.addEventListener('click', () => { show(i); toggleOverview(); });
+      ovGrid.appendChild(card);
+    });
+  }
+
+  function toggleOverview() {
+    if (overview.classList.contains('show')) {
+      overview.classList.remove('show');
+    } else {
+      buildOverview();
+      overview.classList.add('show');
+    }
+  }
+</script>
+
+</body>
+</html>
