@@ -20,7 +20,7 @@ description: Alan 的专业咨询风 PPT skill — 单一视觉身份（McKinsey
 | 禁用 | WebGL 流体 / 点阵 / 渐变 / 阴影 / 圆角 > 4px / Stock photo / 营销 hero scene / 商务握手图 |
 | 入场动效 | 极简：opacity 0→1 + 微 translateY + 数字 scaleIn + bar grow-in；**禁用** 流体 / 视差 / sequence |
 | 标题 | **必须是结论句**："动作可释放 18-24% EBITDA" 而不是 "EBITDA 分析" |
-| 信息密度 | 一页讲 3-4 个论点；不是"一页一句话"，但也不堆 8+ 个 |
+| 信息密度 | **呼吸优先**：3-4 个论点是**上限不是目标**；能用 2 个讲清就用 2，宁可拆成两页也不要挤满。每页留 ≥30% 负空间 |
 
 ---
 
@@ -150,6 +150,7 @@ cp "<SKILL_ROOT>/assets/template-consulting.html" "项目/XXX/deck/index.html"
 3. ✅ **字体只用无衬线**：grep `serif` 应该为空
 4. ✅ **节奏合理**：light / dark 交替，没有连续 3 页同主题
 5. ✅ **底部不压 nav**：内容收尾 ≤ 93vh，nav 在 ~97vh
+6. ✅ **呼吸充足**：每页负空间 ≥ 30%，正文不顶版边，卡片间距宽松统一；宁可拆页不挤满
 
 ### Step 5 · 本地预览
 
@@ -158,6 +159,10 @@ open "项目/XXX/deck/index.html"
 ```
 
 不需要本地服务器。键盘 ← → 翻页 / ESC 索引 / B 低功耗 / F 全屏 / 1-9 直跳。
+
+### Step 5.5 · 换眼视觉 QA（**必跑，不可跳过**）
+
+自查（Step 4）是同一个 agent 看自己，有预期盲区，**发现不了"挤"**。交付前必须按 `references/visual-qa.md` 跑一遍：渲染每页成图 → 派一个全新子agent用挑刺视角找问题（**重点查呼吸/留白：疏密不均、贴边、顶到页脚、负空间不足**）→ 修 → 重验。没跑完至少一轮"修复+重验"，不算完成。
 
 ### Step 6 · 迭代
 
@@ -175,6 +180,7 @@ open "项目/XXX/deck/index.html"
 2. **拆分透明 PNG**（可选，标准图表可跳过）：按 `assets/mckinsey-pptx/decompose-prompt.md` 的 Prompt 把每页拆成透明 PNG 素材
 3. **重建可编辑 pptx**：把 `assets/mckinsey-pptx/` 整个目录拷到项目根，改 `make-deck.js` 顶部的 PROJECT 常量和 `addSlideN` 函数，跑 `npm install && node make-deck.js`
 4. **自检**：按 `references/checklist-mckinsey.md` 的 P0/P1/P2/P3 清单逐项核对，在 PowerPoint 里打开验证文字可编辑
+5. **换眼视觉 QA（必跑）**：按 `references/visual-qa.md` 把 pptx 渲染成图（soffice→pdf→pdftoppm）→ 派全新子agent挑刺（重点查呼吸/留白、溢出、重叠）→ 修 → 重验，零新问题才交付
 
 **与 HTML 路径的差异**：
 - HTML：纯网页 / 浏览器翻页 / CSS class
@@ -229,7 +235,8 @@ alanppt/
     ├── layouts-consulting.md     ← ★ HTML · 10 种 layout 骨架（可粘贴）
     ├── mckinsey-pptx.md          ← ★ PPTX · 完整工作流主文档
     ├── cover-specs.md            ← ★ COVER · 多平台封面规格 + Prompt 模板
-    └── checklist-mckinsey.md     ← ★ PPTX · 自检清单（P0/P1/P2/P3）
+    ├── checklist-mckinsey.md     ← ★ PPTX · 自检清单（P0/P1/P2/P3 + 呼吸 P2-5）
+    └── visual-qa.md              ← ★ 通用 · 渲染+换眼子agent视觉QA回环（HTML/PPTX 交付前必跑）
 ```
 
 **加载顺序建议**：
@@ -250,9 +257,11 @@ alanppt/
 2. **极致字号对比** — 主标题（48px）与正文（16px）比例 ≥ 3:1；KPI 大数字（72px）与 label（24px）比例 3:1
 3. **无衬线只此一家** — Inter / Helvetica / 苹方；任何衬线都是错的
 4. **直角纯色** — 不允许渐变 / 阴影 / 圆角 > 4px
-5. **网格至上** — 所有元素吸附到 12-col grid，左对齐 + 大幅留白做非对称美学
+5. **网格至上** — 所有元素吸附到 12-col grid，左对齐；留白是设计元素不是浪费：页边距 ≥ 画布 6%，相邻区块间距取"宽松档"且全 deck 统一，文本块宽度 ≤ 62 字符（中文 ≤ 34 字），不要让正文顶到边
 6. **Hairline 是手术刀** — 1px 的极细分割线就够，不要加粗、不要加阴影
 7. **结论先行** — 每页大标题都是结论，副标补论据，不要写"关于 XX 的分析"
 8. **红色克制** — 红色一份 deck ≤ 3 次，每次都对应"最该看的那一项"
 9. **配图不用 stock** — 真实素材或自己生成，stock photo 一秒掉档次
 10. **入场动效极简** — opacity + 微 translateY + 数字 scaleIn；不用流体 / 视差 / sequence
+11. **呼吸优先于密度** — 宁可一页少讲一点、多拆一页，也不把版面填满；每页保留 ≥30% 负空间；上下内容收在画布纵向 ~10%–90% 之间，给天地留气口。密度是上限，留白是默认
+12. **换眼验证再交付** — 自己写的版面有"预期盲区"，看不出自己挤了。交付前**必须**渲染成图、派一个全新子agent用挑刺视角找问题（见 `references/visual-qa.md`），修完重验，零新问题才算完成

@@ -103,11 +103,18 @@
   .slide {
     position: absolute; inset: 0;
     display: grid; grid-template-rows: auto 1fr auto;
-    padding: 4.5vh 5.5vw 3vh;
+    row-gap: var(--sp-4);              /* 呼吸：页头/正文/页脚之间留气口，别贴在一起 */
+    padding: 5vh 6vw 3.5vh;            /* 呼吸：版边更松（≥画布 6%），正文不顶边 */
     background: var(--paper);
     opacity: 0; visibility: hidden;
     transition: opacity var(--d-base) var(--ease);
   }
+  /* 正文/lead 默认限宽，避免一行拉满顶到版边（中文 ~34 字、英文 ~62 字符为舒适行长） */
+  .body, .lead { max-width: 62ch; }
+  .body.full, .lead.full { max-width: none; }   /* 需要满宽时显式 .full */
+  /* 呼吸：内容偏少的页给"正文区"（.slide 中间 1fr 行的那个直接子元素）加 .center-y，
+     让内容在纵向居中，留白分到上下两侧，而不是全塌在底部显得"没做完"。 */
+  .slide > .center-y { align-self: center; }
   .slide.active { opacity: 1; visibility: visible; }
   .slide.dark { background: var(--ink); color: var(--paper); }
   .slide.dark .muted, .slide.dark .t-meta, .slide.dark .t-cat { color: rgba(255,255,255,0.62); }
@@ -197,8 +204,8 @@
      ============================================================= */
   .grid           { display: grid; gap: var(--sp-5); align-content: start; }
   .grid-12        { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--sp-5); }
-  .grid-3         { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
-  .grid-4         { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+  .grid-3         { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-6); }  /* 呼吸：卡片间距取宽松档 */
+  .grid-4         { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-6); }  /* 呼吸：卡片间距取宽松档 */
   .grid-2         { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-6); }
   .grid-2-1       { display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-6); }
   .grid-1-2       { display: grid; grid-template-columns: 1fr 2fr; gap: var(--sp-6); }
@@ -217,7 +224,7 @@
      ============================================================= */
   .kpi-tile {
     border: 1px solid var(--line);
-    padding: var(--sp-5) var(--sp-5) var(--sp-5);
+    padding: var(--sp-6) var(--sp-6);   /* 呼吸：卡内 padding 加大，数字/文字不贴框 */
     background: var(--paper);
     position: relative;
     display: grid; gap: var(--sp-2);
@@ -242,7 +249,7 @@
      ============================================================= */
   .panel {
     background: var(--paper-tint);
-    padding: var(--sp-5);
+    padding: var(--sp-6);               /* 呼吸：panel 内边距加大 */
     display: grid; gap: var(--sp-3);
   }
   .panel .panel-title { font-size: var(--t-md); font-weight: 700; color: var(--ink); }

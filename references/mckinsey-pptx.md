@@ -3,6 +3,8 @@
 > 这是 alanppt 的**第三条产出路径**：image-first 工作流，最终交付一个**真正可在 PowerPoint 里二次编辑**的 .pptx 文件。
 > 适合客户咨询汇报 / 高管展示 / 需要"对方接着改"的场景。
 > 网页 PPT（A 杂志风 / B 瑞士风）请走 `layouts.md` / `layouts-swiss.md`，不要混用本文档。
+>
+> ⚠️ **两条铁律（image-first 最易翻车处）**：① **呼吸优先**——image-2 生图时 prompt 里就要写"generous whitespace / ≥30% negative space / 版边留白 / 每页≤3-4论点"，否则图像模型默认把版面塞满，后面再补救很难；② **换眼 QA 必跑**——pptx 渲染成图后按 `visual-qa.md` 派全新子agent挑刺（重点查呼吸/留白/溢出），修验回环后才交付。自检清单见 `checklist-mckinsey.md`（含 P2-5 呼吸量化项）。
 
 ---
 
