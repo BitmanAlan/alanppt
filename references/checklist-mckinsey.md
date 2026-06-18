@@ -97,7 +97,7 @@
 ### P3-1 · 路径硬编码
 - [ ] `make-deck.js` 顶部的 `ROOT` 不要硬编码绝对路径
 - [ ] 默认用 `__dirname` 或 `process.env.PROJECT_ROOT`
-- [ ] 旧脚本里如果还有 `/Users/limingxuan/Downloads/...` 这种路径，必须改
+- [ ] 旧脚本里如果还有 `/Users/<you>/Downloads/...` 这种个人绝对路径，必须改
 
 ### P3-2 · 输出文件名带版本
 - [ ] 命名格式：`mckinsey_style_<项目名>_editable.pptx`

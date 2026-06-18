@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+title: "alanppt — 四种顶级视觉身份的 PPT 生成 Skill"
+message: "If you use, fork, or build upon this work, you must cite it and retain attribution (CC BY-SA 4.0)."
+type: software
+authors:
+  - given-names: Alan
+    family-names: Lee
+    alias: BitmanAlan
+    email: alansightvc@gmail.com
+abstract: >-
+  A PPT-generation skill with four self-contained visual identities
+  (Consulting / Keynote / Editorial / Dark-tech), a Design-Read front door,
+  breathing-first layout rules, and a fresh-eyes visual-QA loop.
+  Original work by Alan Lee (BitmanAlan).
+license: CC-BY-SA-4.0
+date-released: 2026-06-18
+url: "https://github.com/BitmanAlan/alanppt"
