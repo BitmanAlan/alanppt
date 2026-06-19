@@ -49,7 +49,7 @@
 
 | 维度 | 规则 |
 |---|---|
-| 字体 | **高对比变量衬线**做大标：PP Editorial New / Source Han Serif / Noto Serif SC（大、细节锐利）；正文配干净无衬线（苹方/Inter）。衬线↔无衬线对比是灵魂 |
+| 字体 | **高对比变量衬线**做大标：**Fraunces / Playfair Display**（免费 OFL，Google Fonts CDN）+ Source Han Serif SC / Noto Serif SC 兜底；正文配干净无衬线（Inter/苹方）。衬线↔无衬线对比是灵魂。（不再用商用的 PP Editorial New） |
 | 配色 | 暖底：cream #FDFBF7 / 米白 + 深espresso #2B2420 文字 + 一个雅致点缀（赭石/墨绿/酒红）。**不要纯白冷灰** |
 | 装饰/质感 | 细 CSS noise/film-grain 叠加（opacity ~0.03）做纸感；细 hairline 分栏；首字下沉/引文大字 |
 | 布局 | 杂志跨页感：非对称双栏、大图配窄栏文字、eyebrow 微标签起头、宽松基线节奏 |
@@ -66,7 +66,7 @@
 
 | 维度 | 规则 |
 |---|---|
-| 字体 | 几何 Grotesk：Geist / Clash Display / Plus Jakarta；等宽 mono 做数据/代码（JetBrains Mono） |
+| 字体 | 几何 Grotesk：**Geist / Plus Jakarta Sans**（免费 OFL，Google Fonts CDN）；等宽 mono 做数据/代码：**JetBrains Mono**（免费）。Clash Display 为可选（Fontshare 免费，需自行加载） |
 | 配色 | 最深 OLED 黑 #050505 + 背景低透明度径向 mesh 光晕（如幽蓝/翡翠 orb）+ 纯白/10 hairline + 高亮白文字 |
 | 装饰/质感 | **双层嵌套卡（Doppelrand）**：外壳 bg-white/5 + ring-white/10 + 大圆角，内核自带 inset 高光；backdrop-blur 玻璃卡（仅固定元素）；细网格背景 |
 | 布局 | 不对称 Bento 网格（大小卡错落）；eyebrow pill 标签；macro section 间距 |
@@ -84,6 +84,24 @@
 - **禁布局**：居中 hero over dark mesh、无留白的三等分卡、edge-to-edge 粘顶导航
 - **禁阴影/边框**：生硬 1px 灰边（A 的 hairline 例外）、harsh dark drop shadow
 - **禁动效**：linear/ease-in-out 生硬过渡、无插值的瞬变
+
+## 字体获取（四身份共用 · 全部免费 OFL）
+
+本 skill 不使用任何商用字体，全部可免费获取，模板已用 `<link>`/`@import` 从 Google Fonts CDN 加载，并配系统字体兜底：
+
+| 用途 | 字体（免费） | 来源 |
+|---|---|---|
+| B/D 几何 Grotesk | Geist · Plus Jakarta Sans | Google Fonts |
+| C 高对比衬线大标 | Fraunces · Playfair Display | Google Fonts |
+| D/数据 等宽 | JetBrains Mono | Google Fonts |
+| 中文 | 苹方 / 思源宋体 Source Han Serif / Noto Serif SC | 系统 / 可选装 |
+
+- **联网**：模板自动拉取正确字体，输出即 crisp。
+- **离线 / headless 截图**：回退系统字体（仍可用，但不如指定字体锐利）。
+- **要离线也 crisp**：把上述拉丁字体装进 `~/Library/Fonts/`（OFL 可自由分发），中文装思源宋体即可。
+- ⚠️ 中文字体一律走系统/本地，**不要**从 Google 拉 CJK web 字体（会拖 900 个子集、拖垮加载）。
+
+---
 
 ## 选身份决策（Design Read 速查）
 

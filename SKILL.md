@@ -50,6 +50,7 @@ description: Alan 的专业咨询风 PPT skill — 单一视觉身份（McKinsey
 - **反默认**（借 high-end-visual "Absolute Zero"）：避开 LLM 默认审美——AI 紫渐变、居中 hero over dark mesh、三等分卡、Inter+slate 全家桶。
 - **字体配身份**：A 用无衬线（Inter/苹方）；B 用宽几何 Grotesk（Geist/Plus Jakarta，大字 weight 拉满）；C 用高对比变量衬线（PP Editorial/Source Han Serif）做大标 + 无衬线正文；D 用几何 Grotesk（Geist/Clash Display）。**A 出现衬线是错的；C 大标用无衬线是浪费**。
 - **换眼 QA 必跑**（见 #12 + `references/visual-qa.md`）：四种身份交付前都要渲染+换眼挑刺，重点查呼吸。
+- **交付后沉淀**：每做完一份真实 deck（尤其翻过车或被 QA 揪出问题的），在 `references/field-notes.md` 追加一条带日期的踩坑记录（症状/根因/修法/适用身份）。严重的坑上升为配方或检查项——让 skill 像老师傅一样**累积里程，同样的坑只踩一次**。
 
 > ⚠️ **身份不混搭**：一份 deck 只走一种身份。咨询风（A）继续遵守它原有的全部克制规则——**渐变/阴影/玻璃/圆角>4px/衬线 在 A 里依旧是错的**；这些只在 B/C/D 对应身份里按配方使用。
 
@@ -280,7 +281,8 @@ alanppt/
     ├── mckinsey-pptx.md          ← ★ PPTX · 完整工作流主文档
     ├── cover-specs.md            ← ★ COVER · 多平台封面规格 + Prompt 模板
     ├── checklist-mckinsey.md     ← ★ PPTX · 自检清单（P0/P1/P2/P3 + 呼吸 P2-5）
-    └── visual-qa.md              ← ★ 通用 · 渲染+换眼子agent视觉QA回环（HTML/PPTX 交付前必跑）
+    ├── visual-qa.md              ← ★ 通用 · 渲染+换眼子agent视觉QA回环（HTML/PPTX 交付前必跑）
+    └── field-notes.md            ← ★ 实战踩坑日志（每做完真实 deck 追加一条，累积里程）
 ```
 
 **加载顺序建议**：
